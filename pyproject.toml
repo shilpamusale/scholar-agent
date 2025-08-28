@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 # Set the maximum line length
 line-length = 88
 
+[tool.ruff.lint]
 # Select the rules to enforce
 select = ["E", "F", "W", "I"]
 

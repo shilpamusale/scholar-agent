@@ -1,15 +1,18 @@
 # src/data_processing/downloader.py
 
-import arxiv
 import os
+
+import arxiv
 from tqdm import tqdm
+
+import configs.settings as settings
 
 # Import our custom logging and settings
 from src.utils.logging_config import setup_logging
-import configs.settings as settings
 
 # Get the logger instance for this specific module
 logger = setup_logging(__name__, "downloader")
+
 
 def download_papers(query: str, num_papers: int, output_dir: str):
     """
@@ -21,7 +24,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
         output_dir (str): The directory to save the downloaded PDFs.
     """
     logger.info(f"Starting download for query: '{query}'")
-    
+
     try:
         os.makedirs(output_dir, exist_ok=True)
         logger.info(f"Output directory '{output_dir}' is ready.")
@@ -30,9 +33,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
         return
 
     search = arxiv.Search(
-        query=query,
-        max_results=num_papers,
-        sort_by=arxiv.SortCriterion.Relevance
+        query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance
     )
 
     try:
@@ -40,7 +41,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
     except Exception as e:
         logger.error(f"An error occurred while fetching results from arXiv: {e}")
         return
-    
+
     if not results:
         logger.warning("No papers found for the given query.")
         return
@@ -49,9 +50,11 @@ def download_papers(query: str, num_papers: int, output_dir: str):
 
     for paper in tqdm(results, desc="Downloading Papers"):
         try:
-            safe_title = "".join(c for c in paper.title if c.isalnum() or c in (' ', '.', '_')).rstrip()
+            safe_title = "".join(
+                c for c in paper.title if c.isalnum() or c in (" ", ".", "_")
+            ).rstrip()
             filename = f"{safe_title}.pdf"
-            
+
             paper.download_pdf(dirpath=output_dir, filename=filename)
             logger.info(f"Successfully downloaded '{filename}'")
 
@@ -63,7 +66,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
 
 if __name__ == "__main__":
     download_papers(
-        query=settings.SEARCH_QUERY, 
+        query=settings.SEARCH_QUERY,
         num_papers=settings.NUM_PAPERS_TO_DOWNLOAD,
-        output_dir=settings.RAW_DATA_PATH
+        output_dir=settings.RAW_DATA_PATH,
     )
