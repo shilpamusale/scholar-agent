@@ -1,0 +1,21 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+pycache/
+*.pyc
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Environment variables
+.env
+
+# Data files (we don't want to commit large datasets or PDFs)
+data/raw/*.pdf
+data/processed/
+
+# Notebook checkpoints
+.ipynb_checkpoints/

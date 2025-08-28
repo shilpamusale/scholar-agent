@@ -1,0 +1,27 @@
+# Core ML/Agent Framework
+langchain
+langchain-openai
+sentence-transformers
+ragas
+
+# Vector Store
+chromadb
+
+# API Framework
+fastapi
+uvicorn
+
+# Data Handling & Ingestion
+pandas
+numpy
+jupyterlab
+arxiv
+pypdf
+
+# Utilities & Dev Tools
+python-dotenv
+tqdm
+ruff
+
+# Testing
+pytest
