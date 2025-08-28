@@ -19,3 +19,7 @@ data/processed/
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# Log files
+logs/
+*.log

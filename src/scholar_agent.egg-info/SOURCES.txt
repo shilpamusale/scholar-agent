@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+src/__init__.py
+src/data_processing/__init__.py
+src/data_processing/downloader.py
+src/scholar_agent.egg-info/PKG-INFO
+src/scholar_agent.egg-info/SOURCES.txt
+src/scholar_agent.egg-info/dependency_links.txt
+src/scholar_agent.egg-info/top_level.txt
+src/utils/__init__.py
+src/utils/logging_config.py

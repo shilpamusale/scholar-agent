@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: scholar-agent
+Version: 0.1.0
+Summary: An agentic AI system for reasoning over a corpus of scientific papers.
+Author-email: Ishi <your-email@example.com>
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# scholar-agent
+scholar-agent

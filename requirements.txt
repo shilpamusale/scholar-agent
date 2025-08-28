@@ -2,6 +2,7 @@
 langchain
 langchain-openai
 sentence-transformers
+langchain-community
 ragas
 
 # Vector Store
