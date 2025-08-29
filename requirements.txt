@@ -4,6 +4,7 @@ langchain-google-genai
 sentence-transformers
 langchain-community
 ragas
+flashrank
 
 # Vector Store
 chromadb

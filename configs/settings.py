@@ -1,27 +1,24 @@
 # configs/settings.py
-import os
+
+from pathlib import Path
 
 # --- Project Root ---
-# This gives us an absolute path to the project's root directory
-# All other paths will be built from this
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# --- Data Paths ---
-RAW_DATA_PATH = os.path.join(PROJECT_ROOT, "data/raw")
-VECTOR_STORE_PATH = os.path.join(PROJECT_ROOT, "data/processed/chroma_db")
-LOGS_PATH = os.path.join(PROJECT_ROOT, "logs")
+# --- Data and Log Paths ---
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
+VECTOR_STORE_PATH = PROJECT_ROOT / "data" / "processed" / "chroma_db"
+LOGS_PATH = PROJECT_ROOT / "logs"
 
-
-# --- Data Ingestion Parameters ---
+# --- RAG Pipeline Settings ---
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
-# --- Embedding Model ---
+# --- Model Names ---
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
-
-# --- LLM Model ---
+CROSS_ENCODER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
 LLM_MODEL_NAME = "gemini-1.5-flash"
 
-# --- Downloader Settings ---
+# --- ArXiv Search Settings ---
 SEARCH_QUERY = "Anthropic dictionary learning interpretability sparse autoencoder"
-NUM_PAPERS_TO_DOWNLOAD = 20
+MAX_RESULTS = 20
