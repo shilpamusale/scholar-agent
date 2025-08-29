@@ -9,6 +9,7 @@ repos:
     -   id: trailing-whitespace
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version needs to be managed here and in pyproject.toml
     rev: v0.5.5
     hooks:
     -   id: ruff

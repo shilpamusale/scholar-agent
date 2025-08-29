@@ -1,6 +1,6 @@
 # Core ML/Agent Framework
 langchain
-langchain-openai
+langchain-google-genai
 sentence-transformers
 langchain-community
 ragas
