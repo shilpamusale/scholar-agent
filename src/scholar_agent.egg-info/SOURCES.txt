@@ -4,9 +4,14 @@ pyproject.toml
 src/__init__.py
 src/data_processing/__init__.py
 src/data_processing/downloader.py
+src/data_processing/ingestion.py
+src/rag_pipeline/core.py
 src/scholar_agent.egg-info/PKG-INFO
 src/scholar_agent.egg-info/SOURCES.txt
 src/scholar_agent.egg-info/dependency_links.txt
 src/scholar_agent.egg-info/top_level.txt
 src/utils/__init__.py
 src/utils/logging_config.py
+tests/test_data_ingestion.py
+tests/test_placeholder.py
+tests/test_rag_pipeline.py

@@ -1,3 +1,4 @@
 __init__
 data_processing
+rag_pipeline
 utils
