@@ -1,20 +1,22 @@
 # tests/test_rag_pipeline.py
 
-import pytest
-from unittest.mock import patch, MagicMock
-from langchain_core.runnables import Runnable
+import os
 
 # Make sure the src directory is in the path for imports
 import sys
-import os
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+from unittest.mock import MagicMock, patch
+
+from langchain_core.runnables import Runnable
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
 from src.rag_pipeline.core import create_rag_chain
 
-@patch('src.rag_pipeline.core.ChatGoogleGenerativeAI')
-@patch('src.rag_pipeline.core.SentenceTransformerEmbeddings')
-@patch('src.rag_pipeline.core.Chroma')
+
+@patch("src.rag_pipeline.core.ChatGoogleGenerativeAI")
+@patch("src.rag_pipeline.core.SentenceTransformerEmbeddings")
+@patch("src.rag_pipeline.core.Chroma")
 def test_create_rag_chain(mock_chroma, mock_embeddings, mock_llm):
     """
     Tests that the RAG chain is created successfully and is a runnable object.
@@ -31,7 +33,7 @@ def test_create_rag_chain(mock_chroma, mock_embeddings, mock_llm):
     # Assert that the chain is a valid, runnable LangChain object
     assert rag_chain is not None
     assert isinstance(rag_chain, Runnable)
-    
+
     # Assert that our external services were initialized
     mock_chroma.assert_called_once()
     mock_embeddings.assert_called_once()

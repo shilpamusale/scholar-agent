@@ -4,7 +4,7 @@ import os
 # --- Project Root ---
 # This gives us an absolute path to the project's root directory
 # All other paths will be built from this
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # --- Data Paths ---
 RAW_DATA_PATH = os.path.join(PROJECT_ROOT, "data/raw")
