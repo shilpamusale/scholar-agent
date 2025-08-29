@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
-from src.data_processing.ingestion import (
+from src.data_processing.ingestion import (  # noqa: E402
     create_and_persist_vector_store,
     load_documents,
     split_documents,

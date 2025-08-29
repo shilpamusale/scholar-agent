@@ -1,15 +1,17 @@
+# .pre-commit-config.yaml
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
     hooks:
-      - id: black
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version needs to be managed here and in pyproject.toml
+    rev: v0.5.5
     hooks:
-      - id: flake8
-
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.12.0
-    hooks:
-      - id: isort
+    -   id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+    -   id: ruff-format

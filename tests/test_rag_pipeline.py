@@ -11,7 +11,7 @@ from langchain_core.runnables import Runnable
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
-from src.rag_pipeline.core import create_rag_chain
+from src.rag_pipeline.core import create_rag_chain  # noqa: E402
 
 
 @patch("src.rag_pipeline.core.ChatGoogleGenerativeAI")
