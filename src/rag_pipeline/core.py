@@ -23,6 +23,8 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
     Creates and returns a RAG (Retrieval-Augmented Generation) chain.
     The chain is designed to take a question, retrieve relevant documents,
     re-rank them for precision, and then generate an answer using an LLM.
+    The final output is a dictionary containing the answer and the retrieved context,
+    making it suitable for evaluation with RAGAS.
 
     Args:
         vector_store_path (str): The path to the persisted ChromaDB vector store.
@@ -30,7 +32,7 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
     Returns:
         A runnable LangChain object representing the RAG chain.
     """
-    logger.info("Creating the RAG chain with re-ranking...")
+    logger.info("Creating the RAG chain for evaluation...")
 
     # --- 1. Embedding Model ---
     embedding_model = SentenceTransformerEmbeddings(
@@ -39,7 +41,7 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
 
     # --- 2. Vector Store and Base Retriever ---
     vector_store = Chroma(
-        persist_directory=vector_store_path, embedding_function=embedding_model
+        persist_directory=str(vector_store_path), embedding_function=embedding_model
     )
     base_retriever = vector_store.as_retriever(
         search_kwargs={"k": settings.RETRIEVER_TOP_K}
@@ -50,11 +52,11 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
     ranker = Ranker(model_name=settings.CROSS_ENCODER_MODEL_NAME)
     logger.info("Flashrank re-ranker initialized.")
 
-    # --- 4. Custom Re-ranking and Formatting Function ---
-    def rerank_and_format_context(data: Dict) -> str:
+    # --- 4. Custom Function to Prepare Data for the Prompt ---
+    def rerank_and_prepare_for_prompt(data: Dict) -> Dict:
         """
-        Takes the output of the base retriever, re-ranks it, and formats
-        the top documents into a single string for the LLM context.
+        Takes the retriever's output, re-ranks it, formats the context,
+        and returns a dictionary ready for the prompt.
         """
         query = data["question"]
         docs = data["context"]
@@ -67,17 +69,21 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
         top_docs_content = [
             result["text"] for result in reranked_passages[: settings.RERANKER_TOP_N]
         ]
+        formatted_context = "\n\n---\n\n".join(top_docs_content)
+
         logger.info(f"Re-ranked {len(docs)} documents down to {len(top_docs_content)}.")
-        return "\n\n---\n\n".join(top_docs_content)
+
+        # Return a dictionary with the keys the prompt expects
+        return {"context": formatted_context, "question": query}
 
     # --- 5. The Prompt Template ---
     template = """
     You are an expert research assistant.
-    Your goal is to provide a clear and concise answer to the user's question,
-    based ONLY on the following context.
+    Your goal is to provide a clear and concise answer to
+    the user's question, based ONLY on the following context.
     Do not add any information that is not present in the context.
-    If the answer is not in the context, say "Sorry, I couldn’t find that
-    information in the provided context."
+    If the answer is not in the context, say
+    "Sorry, I couldn’t find that information in the provided context."
 
     CONTEXT:
     {context}
@@ -95,20 +101,14 @@ def create_rag_chain(vector_store_path: str = settings.VECTOR_STORE_PATH):
     logger.info(f"LLM initialized with model: {settings.LLM_MODEL_NAME}")
 
     # --- 7. The Final RAG Chain for Evaluation ---
-    # This chain passes the retrieved context through to the final output
-    # so that RAGAS can evaluate it.
     retriever_chain = RunnableParallel(
         {"context": base_retriever, "question": RunnablePassthrough()}
     )
 
-    # The processing chain that takes the retrieved
-    # context and question to generate an answer
     answer_chain = (
-        RunnableLambda(rerank_and_format_context) | prompt | llm | StrOutputParser()
+        RunnableLambda(rerank_and_prepare_for_prompt) | prompt | llm | StrOutputParser()
     )
 
-    # The final chain that combines
-    # everything and returns a dictionary
     rag_chain = retriever_chain | RunnableParallel(
         {"answer": answer_chain, "context": lambda x: x["context"]}
     )
