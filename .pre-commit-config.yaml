@@ -1,17 +1,29 @@
 # .pre-commit-config.yaml
 
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
 
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version needs to be managed here and in pyproject.toml
-    rev: v0.5.5
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.11
     hooks:
-    -   id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-    -   id: ruff-format
+      - id: ruff
+        args: [--fix]
+        files: ".*\\.py"
+      - id: ruff-format
+        files: ".*\\.py"
+
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-ruff
+        files: ".*\\.ipynb"
+        args: [
+          "--ignore=E402,F821,I001"
+        ]
+      - id: nbqa-isort
+        files: ".*\\.ipynb"
