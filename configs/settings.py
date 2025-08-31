@@ -1,28 +1,42 @@
+# configs/settings.py
+
 from pathlib import Path
 
-# --- PROJECT ROOT ---
-# Define the absolute path to the project root
+# --- Project Root ---
+# This computes the absolute path to the project's root directory
 PROJECT_ROOT = Path(__file__).parent.parent
 
-# --- PATHS ---
-# Build paths relative to the project root
+# --- Data Paths ---
 DATA_PATH = PROJECT_ROOT / "data"
 RAW_DATA_PATH = DATA_PATH / "raw"
 PROCESSED_DATA_PATH = DATA_PATH / "processed"
+VECTOR_STORE_PATH = str(
+    PROCESSED_DATA_PATH / "chroma_db"
+)  # Convert to string for ChromaDB
 LOGS_PATH = PROJECT_ROOT / "logs"
-VECTOR_STORE_PATH = PROCESSED_DATA_PATH / "chroma_db"
 
-# --- DATA INGESTION ---
+
+# --- Data Ingestion ---
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
-# --- ARXIV DOWNLOADER ---
+# --- Document Downloader ---
 SEARCH_QUERY = "Anthropic dictionary learning interpretability sparse autoencoder"
 MAX_RESULTS = 20
 
-# --- RAG PIPELINE ---
+# --- Embedding Model ---
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
+
+# --- RAG Pipeline ---
+# The number of documents to retrieve in the initial fast search
+RETRIEVER_TOP_K = 15  # Reduced from 20
+
+# The number of documents to pass to the final LLM after re-ranking
+RERANKER_TOP_N = 3  # Reduced from 5
+
+# --- Cross-Encoder Model for Re-ranking ---
 CROSS_ENCODER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
+
+# --- LLM ---
 LLM_MODEL_NAME = "gemini-1.5-flash"
-RETRIEVER_TOP_K = 20
-RERANKER_TOP_N = 5
+MAX_OUTPUT_TOKENS = 512  # New setting to control generation length
