@@ -1,36 +1,34 @@
-# Core ML/Agent Framework
 langchain
 langchain-google-genai
-sentence-transformers
-langchain-community
-ragas
 langgraph
+sentence-transformers
+ragas==0.1.7
+flashrank
 
-# Vector Store
+#Vector Store
 chromadb
 
-# API Framework
+#API Framework
 fastapi
 uvicorn
 
-# Data Handling & Ingestion
+#Data Handling & Notebooks
 pandas
 numpy
 jupyterlab
-arxiv
 pypdf
-flashrank
+datasets
 
-# Utilities & Dev Tools
+#Utilities & Dev Tools
 python-dotenv
 tqdm
 ruff
+nbqa
+isort
 
-
-# Testing
+#Testing & Code Quality
 pytest
+pre-commit
 
-# Visualization
+#Visualization
 pygraphviz
-matplotlib
-ipython

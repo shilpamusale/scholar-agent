@@ -43,8 +43,18 @@ jobs:
       # --- Step 5: Run linter with ruff ---
       - name: Lint with ruff
         run: |
-          ruff check .
-          ruff format . --check
+          ruff check . --exclude "*.ipynb"
+          ruff format . --check --exclude "*.ipynb"
+
+      - name: Lint notebooks with nbQA + ruff
+        run: |
+          nbqa ruff --ignore=E402,F821,I001 notebooks/
+
+      - name: Sort imports in notebooks with nbQA + isort
+        run: |
+          nbqa isort --check-only notebooks/
+
+
 
       # --- Step 6: Run tests with pytest ---
       - name: Run tests

@@ -1,24 +1,24 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "scholar-agent"
-version = "0.1.0"
-description = "An agentic AI system for reasoning over a corpus of scientific papers."
-
-readme = "README.md"
-requires-python = ">=3.10"
+# pyproject.toml
 
 [tool.ruff]
-# Set the maximum line length
 line-length = 88
 
 [tool.ruff.lint]
-# Select the rules to enforce
-select = ["E", "F", "W", "I"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
 
-# E = pycodestyle errors
-# F = pyflakes errors
-# W = pycodestyle warnings
-# I = isort (import sorting)
+[tool.nbqa.config]
+# Ignore "imports not at top of file" only for notebooks
+ruff = ["--extend-ignore=E402"]
+
+[tool.nbqa.addopts]
+# Auto-fix issues in notebooks where possible
+ruff = ["--fix"]
+isort = []
