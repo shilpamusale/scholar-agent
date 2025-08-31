@@ -1,3 +1,5 @@
+# src/rag_pipeline/core.py
+
 from typing import Dict
 
 from flashrank import Ranker, RerankRequest

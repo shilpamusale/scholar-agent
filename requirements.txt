@@ -4,7 +4,7 @@ langchain-google-genai
 sentence-transformers
 langchain-community
 ragas
-flashrank
+langgraph
 
 # Vector Store
 chromadb
@@ -19,11 +19,18 @@ numpy
 jupyterlab
 arxiv
 pypdf
+flashrank
 
 # Utilities & Dev Tools
 python-dotenv
 tqdm
 ruff
 
+
 # Testing
 pytest
+
+# Visualization
+pygraphviz
+matplotlib
+ipython
