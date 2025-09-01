@@ -1,10 +1,34 @@
 Metadata-Version: 2.4
 Name: scholar-agent
 Version: 0.1.0
-Summary: An agentic AI system for reasoning over a corpus of scientific papers.
+Summary: A multi-agent AI system for building and querying a knowledge graph from research papers.
+Author-email: Ishi <your-email@example.com>
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: langchain
+Requires-Dist: langchain-google-genai
+Requires-Dist: langgraph
+Requires-Dist: sentence-transformers
+Requires-Dist: ragas==0.1.7
+Requires-Dist: flashrank
+Requires-Dist: chromadb
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: jupyterlab
+Requires-Dist: pypdf
+Requires-Dist: datasets
+Requires-Dist: neo4j
+Requires-Dist: python-dotenv
+Requires-Dist: tqdm
+Requires-Dist: ruff
+Requires-Dist: nbqa
+Requires-Dist: isort
+Requires-Dist: pytest
+Requires-Dist: pre-commit
+Requires-Dist: pygraphviz
 Dynamic: license-file
 
 # scholar-agent
