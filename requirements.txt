@@ -37,3 +37,6 @@ pygraphviz
 
 #Phase 3: Knowledge Graph
 neo4j
+
+# API : Sematic Scholar
+requests

@@ -1,45 +1,70 @@
+# pyproject.toml
+
+# --- PROJECT DEFINITION ---
+# This is the main configuration for your installable package.
 [project]
 name = "scholar-agent"
 version = "0.1.0"
-description = "A multi-agent AI system for research."
-authors = [{ name = "Ishi", email = "your@email.com" }]
-license = { file = "LICENSE" }
+description = "A multi-agent AI system for building and querying a scientific knowledge graph."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    # Core AI & LangChain
     "langchain",
     "langchain-google-genai",
     "langgraph",
     "sentence-transformers",
     "ragas==0.1.7",
     "flashrank",
+
+    # Vector Store
     "chromadb",
+
+    # API Framework
     "fastapi",
     "uvicorn",
+
+    # Data Handling & Notebooks
     "pandas",
     "numpy",
     "jupyterlab",
     "pypdf",
     "datasets",
+    "arxiv",
+    "requests", # For Semantic Scholar API
+
+    # Graph Database
+    "neo4j",
+
+    # Utilities & Dev Tools
     "python-dotenv",
     "tqdm",
     "ruff",
     "nbqa",
     "isort",
+
+    # Testing & Code Quality
     "pytest",
     "pre-commit",
+
+    # Visualization
     "pygraphviz",
-    "neo4j",
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/shilpamusale/scholar-agent"
+# --- BUILD SYSTEM CONFIGURATION ---
+# This tells the installer how to build your project.
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-# --- FIX: Tell the build system where to find the package ---
+# --- SETuptools CONFIGURATION ---
+# This is the crucial fix for the build error.
+# It tells the builder to look for your package code inside the 'src' directory.
 [tool.setuptools.packages.find]
-where = ["src"]  # Look for packages inside the 'src' directory
+where = ["src"]
 
-# --- Tool Configurations ---
+# --- LINTER & FORMATTER CONFIGURATION ---
+# Your existing tool configurations remain unchanged.
 [tool.ruff]
 line-length = 88
 
