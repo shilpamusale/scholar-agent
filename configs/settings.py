@@ -1,5 +1,6 @@
 # configs/settings.py
 
+import os
 from pathlib import Path
 
 # --- Project Root ---
@@ -44,3 +45,4 @@ MAX_OUTPUT_TOKENS = 512  # New setting to control generation length
 # --- Semantic Scholar APIs ---
 S2_API_URL = "https://api.semanticscholar.org/graph/v1/paper/arXiv:{arxiv_id}"
 S2_API_FIELDS = "paperId,title,authors.name,year,references.paperId,references.title"
+S2_API_KEY = os.getenv("S2_API_KEY", "")
