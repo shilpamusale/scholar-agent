@@ -1,5 +1,45 @@
-# pyproject.toml
+[project]
+name = "scholar-agent"
+version = "0.1.0"
+description = "A multi-agent AI system for research."
+authors = [{ name = "Ishi", email = "your@email.com" }]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langchain",
+    "langchain-google-genai",
+    "langgraph",
+    "sentence-transformers",
+    "ragas==0.1.7",
+    "flashrank",
+    "chromadb",
+    "fastapi",
+    "uvicorn",
+    "pandas",
+    "numpy",
+    "jupyterlab",
+    "pypdf",
+    "datasets",
+    "python-dotenv",
+    "tqdm",
+    "ruff",
+    "nbqa",
+    "isort",
+    "pytest",
+    "pre-commit",
+    "pygraphviz",
+    "neo4j",
+]
 
+[project.urls]
+"Homepage" = "https://github.com/shilpamusale/scholar-agent"
+
+# --- FIX: Tell the build system where to find the package ---
+[tool.setuptools.packages.find]
+where = ["src"]  # Look for packages inside the 'src' directory
+
+# --- Tool Configurations ---
 [tool.ruff]
 line-length = 88
 

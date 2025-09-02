@@ -67,6 +67,6 @@ def download_papers(query: str, num_papers: int, output_dir: str):
 if __name__ == "__main__":
     download_papers(
         query=settings.SEARCH_QUERY,
-        num_papers=settings.NUM_PAPERS_TO_DOWNLOAD,
+        num_papers=settings.MAX_RESULTS,
         output_dir=settings.RAW_DATA_PATH,
     )
