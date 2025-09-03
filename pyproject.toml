@@ -49,6 +49,11 @@ dependencies = [
 
     # Visualization
     "pygraphviz",
+
+    #Python keyphrase extraction
+    "pke @ git+https://github.com/boudinfl/pke.git",
+    "spacy"
+
 ]
 
 # --- BUILD SYSTEM CONFIGURATION ---

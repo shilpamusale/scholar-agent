@@ -1,43 +1,65 @@
-# .PHONY defines targets that aren't actual files.
-.PHONY: all data clean-data populate-graph
+# Makefile for the Scholar-Agent project
 
-# Default command to run when you just type "make"
-all: data populate-graph
+.PHONY: all data s2-metadata concepts populate-graph clean clean-data clean-raw
+
+# Default target: running 'make' will run the full pipeline
+all: populate-graph
 
 # ====================================================================================
 # DATA PIPELINE COMMANDS
 # ====================================================================================
 
-# Orchestrator target to run the full data preparation pipeline.
+# This target ensures all base data sources are fetched
 data: data/processed/arxiv_metadata.json data/raw
 
-# Rule to create the metadata file, run as a module.
-data/processed/arxiv_metadata.json: src/data_processing/fetch_arxiv_metadata.py configs/settings.py
+# Rule to create the arXiv metadata file.
+data/processed/arxiv_metadata.json: src/data_processing/fetch_arxiv_metadata.py
 	@echo "--> Fetching arXiv metadata..."
-	@mkdir -p data/processed
 	python -m src.data_processing.fetch_arxiv_metadata
 
-# Rule to download the raw PDFs, run as a module.
-data/raw: src/data_processing/downloader.py configs/settings.py
+# Rule to download the raw PDFs.
+data/raw: src/data_processing/downloader.py
 	@echo "--> Downloading raw PDF files..."
-	@mkdir -p data/raw
 	python -m src.data_processing.downloader
 
-# ====================================================================================
-# GRAPH DATABASE COMMANDS
-# ====================================================================================
+# NEW: Rule to create the Semantic Scholar metadata file.
+# This is the crucial missing step.
+s2-metadata: data/processed/s2_metadata.json
 
-# Target to populate the Neo4j database, run as a module.
-populate-graph: data/processed/arxiv_metadata.json
-	@echo "--> Populating the knowledge graph from metadata..."
+data/processed/s2_metadata.json: src/data_processing/fetch_s2_metadata.py data/processed/arxiv_metadata.json
+	@echo "--> Fetching enriched Semantic Scholar metadata..."
+	python -m src.data_processing.fetch_s2_metadata
+
+# Rule to extract concepts from downloaded PDFs
+concepts: data/processed/paper_concepts.json
+
+data/processed/paper_concepts.json: src/data_processing/extract_concepts.py data/raw
+	@echo "--> Extracting concepts from PDFs..."
+	python -m src.data_processing.extract_concepts
+
+# UPDATED: Rule to populate the graph from all processed data
+populate-graph: data/processed/s2_metadata.json data/processed/paper_concepts.json
+	@echo "--> Populating the knowledge graph from all metadata..."
 	python -m src.data_processing.populate_graph
 
 # ====================================================================================
 # UTILITY COMMANDS
 # ====================================================================================
 
-# Target to clean all generated data for a fresh start.
+clean:
+	@echo "--> Cleaning all generated data and caches..."
+	rm -f data/processed/*.json
+	rm -f data/raw/*.pdf
+	rm -f logs/*.log
+	find . -type d -name "__pycache__" -exec rm -r {} +
+
 clean-data:
-	@echo "--> Cleaning up generated data directories..."
-	@rm -rf data/processed
-	@rm -rf data/raw
+	@echo "--> Cleaning up processed data files and logs..."
+	rm -f data/processed/*.json
+	rm -f logs/*.log
+	find . -type d -name "__pycache__" -exec rm -r {} +
+
+clean-raw:
+	@echo "--> Cleaning up raw downloaded PDF files..."
+	rm -f data/raw/*.pdf
+```

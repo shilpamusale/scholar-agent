@@ -27,6 +27,10 @@ ruff
 nbqa
 isort
 arxiv
+spacy
+#Python keyphrase extraction
+pke @ git+https://github.com/boudinfl/pke.git
+
 
 #Testing & Code Quality
 pytest
