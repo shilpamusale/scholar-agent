@@ -1,109 +1,102 @@
 # src/data_processing/fetch_s2_metadata.py
 
 import json
-import re
+import os
 import time
-from pathlib import Path
 from typing import Any
 
 import requests
+from dotenv import load_dotenv
 from tqdm import tqdm
 
-from configs import settings
+import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "s2_metadata_fetcher")
+logger = setup_logging(__name__, "fetch_s2_metadata")
 
 
-def clean_arxiv_id(arxiv_id: str) -> str:
+def _clean_arxiv_id(arxiv_id: str) -> str:
     """Removes the version number from an arXiv ID
-    (e.g., '1706.03762v2' -> '1706.03762').
-    """
-    return re.sub(r"v\d+$", "", arxiv_id)
+    (e.g., '1706.03762v1' -> '1706.03762')."""
+    return arxiv_id.split("v")[0]
 
 
-def fetch_paper_details(arxiv_id: str) -> dict[str, Any] | None:
-    """
-    Fetches detailed paper metadata, including citations,
-    from the Semantic Scholar API.
-
-    Args:
-        arxiv_id: The clean, unversioned arXiv
-                    ID of the paper to look up.
-
-    Returns:
-        A dictionary containing the paper's metadata,
-            or None if an error occurs.
-    """
-    url = settings.S2_API_URL.format(arxiv_id=arxiv_id)
-    params = {"fields": settings.S2_API_FIELDS}
+def fetch_single_paper_metadata(
+    session: requests.Session, arxiv_id: str
+) -> dict[str, Any] | None:
+    """Fetches enriched metadata for a single
+    paper from the Semantic Scholar API."""
+    clean_id = _clean_arxiv_id(arxiv_id)
+    url = f"{settings.S2_API_URL}/paper/arXiv:{clean_id}"
     try:
-        response = requests.get(url, params=params, timeout=15)  # Increased timeout
+        response = session.get(url, params={"fields": settings.S2_API_FIELDS})
+        # Raises an HTTPError for bad responses (4xx or 5xx)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
-        logger.error(f"HTTP Error for arXiv:{arxiv_id}: {e}")
         if e.response.status_code == 404:
-            logger.warning(f"Paper arXiv:{arxiv_id} not found on Semantic Scholar.")
-        # If we are rate-limited, wait for a longer period before continuing
-        if e.response.status_code == 429:
-            logger.warning("Rate limit hit. Waiting for 60 seconds...")
-            time.sleep(60)
-        return None
+            logger.warning(f"Paper arXiv:{clean_id} not found on Semantic Scholar.")
+        else:
+            logger.error(f"HTTP Error for arXiv:{clean_id}: {e}")
     except requests.exceptions.RequestException as e:
-        logger.error(f"Request failed for arXiv:{arxiv_id}: {e}")
-        return None
+        logger.error(f"A network error occurred for arXiv:{clean_id}: {e}")
+    return None
 
 
-def fetch_all_metadata(input_path: Path, output_path: Path):
+def fetch_all_metadata() -> None:
     """
-    Loads a list of papers, fetches their metadata from Semantic Scholar,
-    and saves the enriched data.
+    Main function to fetch metadata for
+    all papers in the corpus,
+    respecting API rate limits and using an API key.
     """
+    load_dotenv()
+    api_key: str | None = os.getenv("S2_API_KEY")
+    if not api_key:
+        logger.error("S2_API_KEY not found in environment variables. Aborting.")
+        return
+
+    headers: dict[str, str] = {"x-api-key": api_key}
+
+    input_path = settings.PROCESSED_DATA_PATH / "arxiv_metadata.json"
+    output_path = settings.PROCESSED_DATA_PATH / "s2_metadata.json"
+
     logger.info(f"Loading initial metadata from {input_path}...")
     try:
         with open(input_path) as f:
-            initial_papers = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        logger.error(f"Could not read or parse input file {input_path}: {e}")
+            arxiv_data: list[dict[str, Any]] = json.load(f)
+    except FileNotFoundError:
+        logger.error(
+            f"Input file not found: {input_path}. Please run 'make data' first."
+        )
         return
 
     enriched_papers: list[dict[str, Any]] = []
     logger.info(
-        f"Fetching enriched metadata for {len(initial_papers)} "
+        f"Fetching enriched metadata for {len(arxiv_data)} "
         f"papers from Semantic Scholar..."
     )
 
-    for paper in tqdm(initial_papers, desc="Fetching S2 Data"):
-        original_arxiv_id = paper.get("arxiv_id")
-        if not original_arxiv_id:
-            continue
+    with requests.Session() as session:
+        session.headers.update(headers)
+        for item in tqdm(arxiv_data, desc="Fetching S2 Data"):
+            arxiv_id = item.get("arxiv_id")
+            if not arxiv_id:
+                continue
 
-        # --- FIX: Clean the arXiv ID before using it ---
-        cleaned_id = clean_arxiv_id(original_arxiv_id)
+            paper_metadata = fetch_single_paper_metadata(session, arxiv_id)
+            if paper_metadata:
+                enriched_papers.append(paper_metadata)
 
-        details = fetch_paper_details(cleaned_id)
-        if details:
-            # Add the original arXiv ID back in for consistency if needed elsewhere
-            details["originalArxivId"] = original_arxiv_id
-            enriched_papers.append(details)
+            # Respect the API rate limit
+            time.sleep(1.1)
 
-        # Respect the API rate limit. 3.1 seconds is a safer margin.
-        time.sleep(3.1)
-
-    logger.info(f"Successfully fetched metadata for {len(enriched_papers)} papers.")
-    logger.info(f"Saving enriched metadata to {output_path}...")
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w") as f:
-            json.dump(enriched_papers, f, indent=2)
-        logger.info("Save complete.")
-    except OSError as e:
-        logger.error(f"Could not write to output file {output_path}: {e}")
+    with open(output_path, "w") as f:
+        json.dump(enriched_papers, f, indent=2)
+    logger.info(
+        f"Successfully fetched and saved metadata for {len(enriched_papers)}"
+        f" papers to {output_path}"
+    )
 
 
 if __name__ == "__main__":
-    fetch_all_metadata(
-        input_path=settings.PROCESSED_DATA_PATH / "arxiv_metadata.json",
-        output_path=settings.PROCESSED_DATA_PATH / "s2_metadata.json",
-    )
+    fetch_all_metadata()

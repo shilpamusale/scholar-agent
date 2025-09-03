@@ -1,6 +1,5 @@
 # configs/settings.py
 
-import os
 from pathlib import Path
 
 # --- Project Root ---
@@ -42,7 +41,6 @@ CROSS_ENCODER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
 LLM_MODEL_NAME = "gemini-1.5-flash"
 MAX_OUTPUT_TOKENS = 512  # New setting to control generation length
 
-# --- Semantic Scholar APIs ---
-S2_API_URL = "https://api.semanticscholar.org/graph/v1/paper/arXiv:{arxiv_id}"
+# --- External APIs ---
+S2_API_URL = "https://api.semanticscholar.org/graph/v1"
 S2_API_FIELDS = "paperId,title,authors.name,year,references.paperId,references.title"
-S2_API_KEY = os.getenv("S2_API_KEY", "")
