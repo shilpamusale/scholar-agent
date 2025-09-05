@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import time
 from typing import Any
 
@@ -15,86 +16,93 @@ from src.utils.logging_config import setup_logging
 logger = setup_logging(__name__, "fetch_s2_metadata")
 
 
-def _clean_arxiv_id(arxiv_id: str) -> str:
-    """Removes the version number from an arXiv ID
-    (e.g., '1706.03762v1' -> '1706.03762')."""
-    return arxiv_id.split("v")[0]
+def clean_arxiv_id(arxiv_id: str) -> str:
+    """Removes the version number from an arXiv ID."""
+    return re.sub(r"v\d+$", "", arxiv_id)
 
 
-def fetch_single_paper_metadata(
-    session: requests.Session, arxiv_id: str
-) -> dict[str, Any] | None:
-    """Fetches enriched metadata for a single
-    paper from the Semantic Scholar API."""
-    clean_id = _clean_arxiv_id(arxiv_id)
+def fetch_paper_metadata(arxiv_id: str, api_key: str) -> dict[str, Any] | None:
+    """
+    Fetches detailed metadata for a single paper from Semantic Scholar,
+    implementing retries with exponential backoff for rate limiting.
+    """
+    clean_id = clean_arxiv_id(arxiv_id)
     url = f"{settings.S2_API_URL}/paper/arXiv:{clean_id}"
-    try:
-        response = session.get(url, params={"fields": settings.S2_API_FIELDS})
-        # Raises an HTTPError for bad responses (4xx or 5xx)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            logger.warning(f"Paper arXiv:{clean_id} not found on Semantic Scholar.")
-        else:
-            logger.error(f"HTTP Error for arXiv:{clean_id}: {e}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"A network error occurred for arXiv:{clean_id}: {e}")
+    params = {"fields": settings.S2_API_FIELDS}
+    headers = {"x-api-key": api_key}
+
+    max_retries = 3
+    base_backoff = 5
+
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:  # Rate limit error
+                wait_time = base_backoff * (2**attempt)
+                logger.warning(
+                    f"Rate limit hit for arXiv:{clean_id} on attempt "
+                    f"{attempt + 1}. Waiting for {wait_time} seconds."
+                )
+                time.sleep(wait_time)
+                continue  # Retry the loop
+            elif e.response.status_code == 404:
+                logger.warning(f"Paper arXiv:{clean_id} not found on S2.")
+                return None
+            else:
+                logger.error(f"HTTP Error for arXiv:{clean_id}: {e}")
+                return None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed for arXiv:{clean_id}: {e}")
+            return None
+
+    logger.error(
+        f"Failed to fetch metadata for arXiv:{clean_id} after {max_retries} attempts."
+    )
     return None
 
 
 def fetch_all_metadata() -> None:
     """
-    Main function to fetch metadata for
-    all papers in the corpus,
-    respecting API rate limits and using an API key.
+    Main function to fetch metadata for all papers and save it as a dictionary.
     """
     load_dotenv()
-    api_key: str | None = os.getenv("S2_API_KEY")
+    api_key = os.getenv("S2_API_KEY")
     if not api_key:
-        logger.error("S2_API_KEY not found in environment variables. Aborting.")
-        return
-
-    headers: dict[str, str] = {"x-api-key": api_key}
+        raise ValueError("S2_API_KEY not found in .env file.")
 
     input_path = settings.PROCESSED_DATA_PATH / "arxiv_metadata.json"
     output_path = settings.PROCESSED_DATA_PATH / "s2_metadata.json"
 
-    logger.info(f"Loading initial metadata from {input_path}...")
     try:
         with open(input_path) as f:
-            arxiv_data: list[dict[str, Any]] = json.load(f)
+            initial_papers = json.load(f)
     except FileNotFoundError:
-        logger.error(
-            f"Input file not found: {input_path}. Please run 'make data' first."
-        )
+        logger.error(f"Input file not found: {input_path}. Please run 'make'.")
         return
 
-    enriched_papers: list[dict[str, Any]] = []
-    logger.info(
-        f"Fetching enriched metadata for {len(arxiv_data)} "
-        f"papers from Semantic Scholar..."
-    )
+    logger.info(f"Fetching S2 metadata for {len(initial_papers)} papers...")
 
-    with requests.Session() as session:
-        session.headers.update(headers)
-        for item in tqdm(arxiv_data, desc="Fetching S2 Data"):
-            arxiv_id = item.get("arxiv_id")
-            if not arxiv_id:
-                continue
+    enriched_papers_map: dict[str, Any] = {}
+    for paper in tqdm(initial_papers, desc="Fetching S2 Data"):
+        arxiv_id = paper.get("arxiv_id")
+        if not arxiv_id:
+            continue
 
-            paper_metadata = fetch_single_paper_metadata(session, arxiv_id)
-            if paper_metadata:
-                enriched_papers.append(paper_metadata)
+        metadata = fetch_paper_metadata(arxiv_id, api_key)
+        if metadata:
+            enriched_papers_map[clean_arxiv_id(arxiv_id)] = metadata
 
-            # Respect the API rate limit
-            time.sleep(1.1)
+        time.sleep(1)
 
     with open(output_path, "w") as f:
-        json.dump(enriched_papers, f, indent=2)
+        json.dump(enriched_papers_map, f, indent=2)
+
     logger.info(
-        f"Successfully fetched and saved metadata for {len(enriched_papers)}"
-        f" papers to {output_path}"
+        f"Successfully saved S2 metadata for {len(enriched_papers_map)} "
+        f"papers to {output_path}"
     )
 
 

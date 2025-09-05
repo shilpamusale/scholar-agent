@@ -1,40 +1,58 @@
 # Makefile for the Scholar-Agent project
 
-.PHONY: all populate-graph clean clean-data clean-raw
+# Define .PHONY targets to prevent conflicts with files of the same name.
+# These are our explicit, runnable commands.
+.PHONY: all clean fetch-arxiv download-pdfs fetch-s2 extract-concepts populate-graph
 
-# Default target: running 'make' will run the full pipeline
+# Default Goal: Running 'make' will run the 'all' target.
 all: populate-graph
 
 # ====================================================================================
-# DATA PIPELINE COMMANDS
+# USER-FACING COMMANDS (for step-by-step execution)
 # ====================================================================================
 
-# Rule to create the arXiv metadata file.
+fetch-arxiv: data/processed/arxiv_metadata.json
+	@echo "~~~~~~~~~~~~~~~~~~~--> ArXiv metadata is up to date."
+
+download-pdfs: data/raw/.download_stamp
+	@echo "~~~~~~~~~~~~~~~~~~~--> PDFs are up to date."
+
+fetch-s2: data/processed/s2_metadata.json
+	@echo "~~~~~~~~~~~~~~~~~~~--> Semantic Scholar metadata is up to date."
+
+extract-concepts: data/processed/paper_concepts.json
+	@echo "~~~~~~~~~~~~~~~~~~~--> Paper concepts are up to date."
+
+# The populate-graph command now depends on its prerequisites.
+populate-graph: data/processed/s2_metadata.json data/processed/paper_concepts.json
+	@echo "~~~~~~~~~~~~~~~~~~~--> (5/5) Populating the knowledge graph..."
+	@python -m src.data_processing.populate_graph
+
+# ====================================================================================
+# INTERNAL FILE-BASED DEPENDENCIES (for automation)
+# ====================================================================================
+
+# 1. Start with the arXiv metadata.
 data/processed/arxiv_metadata.json: src/data_processing/fetch_arxiv_metadata.py
-	@echo "--> Fetching arXiv metadata..."
+	@echo "--> (1/5) Fetching arXiv metadata..."
 	@python -m src.data_processing.fetch_arxiv_metadata
 
-# Rule to download all PDFs. This now depends on the metadata file existing first.
-# Using a "stamp" file to represent the completion of the directory download.
+# 2. PDF downloads depend on the arXiv metadata.
 data/raw/.download_stamp: src/data_processing/downloader.py data/processed/arxiv_metadata.json
-	@echo "--> Downloading raw PDF files..."
+	@echo "--> (2/5) Downloading raw PDF files..."
 	@python -m src.data_processing.downloader
 	@touch data/raw/.download_stamp
 
-# Rule to create the Semantic Scholar metadata file.
-data/processed/s2_metadata.json: src/data_processing/fetch_s2_metadata.py data/processed/arxiv_metadata.json
-	@echo "--> Fetching enriched Semantic Scholar metadata..."
-	@python -m src.data_processing.fetch_s2_metadata
-
-# Rule to extract concepts from downloaded PDFs. This depends on the download stamp.
+# 3. Concept extraction depends on the PDFs being downloaded.
 data/processed/paper_concepts.json: src/data_processing/extract_concepts.py data/raw/.download_stamp
-	@echo "--> Extracting concepts from PDFs..."
+	@echo "--> (3/5) Extracting concepts from PDFs..."
 	@python -m src.data_processing.extract_concepts
 
-# Final rule to populate the graph. This now depends on all final data files.
-populate-graph: data/processed/s2_metadata.json data/processed/paper_concepts.json
-	@echo "--> Populating the knowledge graph from all metadata..."
-	@python -m src.data_processing.populate_graph
+# 4. Semantic Scholar data also depends on the initial arXiv data.
+data/processed/s2_metadata.json: src/data_processing/fetch_s2_metadata.py data/processed/arxiv_metadata.json
+	@echo "--> (4/5) Fetching enriched Semantic Scholar metadata..."
+	@python -m src.data_processing.fetch_s2_metadata
+
 
 # ====================================================================================
 # UTILITY COMMANDS
