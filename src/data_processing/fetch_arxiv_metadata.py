@@ -1,3 +1,33 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+fetch_arxiv_metadata.py: Fetches initial paper metadata from the arXiv API.
+
+This module serves as the primary entry point for the data ingestion pipeline.
+It is responsible for querying the arXiv API based on a search query defined in
+the project settings and retrieving the foundational metadata for a corpus of
+research papers.
+
+The script's main output is `data/processed/arxiv_metadata.json`. This file acts
+as the "source of truth" or "blueprint" for all subsequent data processing
+steps, including PDF downloading, concept extraction, and enriched metadata
+fetching from other APIs. It contains a list of paper objects, each with its
+title, authors, and a clean, unique arXiv ID.
+"""
+
 # src/data_processing/fetch_arxiv_metadata
 
 import json

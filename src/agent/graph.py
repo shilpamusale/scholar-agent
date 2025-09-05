@@ -1,8 +1,42 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law of the agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+graph.py: Constructs and compiles the core agentic graph using LangGraph.
+
+This module defines the state, nodes, and edges for the multi-agent system of
+the Scholar-Agent. It uses LangGraph to create a stateful, cyclical graph that
+enables robust, tool-using behavior.
+
+The architecture follows a standard agentic pattern:
+1.  A "manager" node acts as the primary router, deciding whether to call a
+    tool or respond directly.
+2.  A "tool_executor" node is responsible for invoking the chosen tool with the
+    correct arguments.
+3.  A "generator" node synthesizes the final response for the user based on the
+    tool's output.
+4.  Conditional edges route the flow between these nodes based on the state of
+    the conversation.
+
+The final compiled graph, `agent_graph`, is a runnable object that encapsulates
+the entire reasoning process of the agent.
+"""
+
+
 # src/agent/graph.py
 
 import operator
-
-# from typing import Annotated, List, TypedDict
 from typing import Annotated, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
