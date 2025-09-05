@@ -1,3 +1,41 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+core.py: Factory for creating the advanced RAG-with-reranking chain.
+
+This module contains the primary logic for constructing the Retrieval-Augmented
+Generation (RAG) pipeline for the Scholar-Agent. This is not a standard RAG
+chain; it implements an advanced retrieve-then-rerank pattern to improve the
+quality and relevance of the context provided to the Large Language Model.
+
+The pipeline is built using the LangChain Expression Language (LCEL) and
+consists of the following key stages:
+1.  **Initial Retrieval:** A high-recall, semantic search is performed against
+    a ChromaDB vector store to fetch a large set of candidate documents.
+2.  **Re-ranking:** The initial set of documents is passed to a more
+    sophisticated Cross-Encoder model (via FlashRank) which re-ranks the
+    documents for precision and relevance to the specific query.
+3.  **Prompting and Generation:** The top N re-ranked documents are formatted
+    and injected into a prompt, which is then passed to a Google Gemini model
+    to synthesize the final, grounded answer.
+
+The `create_rag_chain` function serves as a factory, encapsulating this
+complexity and returning a runnable LangChain object that can be used as a
+tool by the agentic system.
+"""
+
 # src/rag_pipeline/core.py
 from flashrank import Ranker, RerankRequest
 from langchain_community.embeddings import SentenceTransformerEmbeddings

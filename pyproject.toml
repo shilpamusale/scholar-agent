@@ -1,13 +1,23 @@
 # pyproject.toml
 
 # --- PROJECT DEFINITION ---
-# This is the main configuration for your installable package.
+# This is the main configuration for installable package.
 [project]
 name = "scholar-agent"
 version = "0.1.0"
 description = "A multi-agent AI system for building and querying a scientific knowledge graph."
+authors = [
+    {name = "Shilpa Musale", email = "shilpa.musale02@gmail.com"},
+]
+license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     # Core AI & LangChain
     "langchain",
@@ -57,19 +67,16 @@ dependencies = [
 ]
 
 # --- BUILD SYSTEM CONFIGURATION ---
-# This tells the installer how to build your project.
+# This tells the installer how to build project.
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 # --- SETuptools CONFIGURATION ---
-# This is the crucial fix for the build error.
-# It tells the builder to look for your package code inside the 'src' directory.
 [tool.setuptools.packages.find]
 where = ["src"]
 
 # --- LINTER & FORMATTER CONFIGURATION ---
-# Your existing tool configurations remain unchanged.
 [tool.ruff]
 line-length = 88
 

@@ -1,3 +1,30 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+
+"""
+downloader.py: A standalone script for downloading research papers from arXiv.
+
+This module serves as a critical first step in the data ingestion pipeline for the
+Scholar-Agent project. It queries the arXiv API for a specified search term
+(defined in `configs.settings`) and downloads the resulting papers as PDF files.
+
+The primary output of this script is a collection of PDF documents stored in the
+`data/raw` directory. Each PDF is robustly named using its unique, version-stripped
+arXiv ID (e.g., '2405.08366.pdf') to ensure a stable and unambiguous link
+between the raw file and its metadata for all downstream processing, such as
+concept extraction.
+
+This script is designed to be executed as part of the automated `Makefile`
+pipeline but can also be run directly for development purposes.
+"""
 # src/data_processing/downloader.py
 
 import os

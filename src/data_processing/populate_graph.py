@@ -1,3 +1,36 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law of a greed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+populate_graph.py: Populates the Neo4j database from processed data files.
+
+This module is the final and most critical step in the data ingestion pipeline.
+It acts as the master assembler, taking all the processed and enriched data
+sources and building the complete, interconnected knowledge graph in Neo4j.
+
+The script performs the following steps:
+1.  Loads the enriched paper/citation data from `s2_metadata.json`.
+2.  Loads the extracted concept data from `paper_concepts.json`.
+3.  Intelligently "joins" these disparate data sources using their common
+    arXiv ID as a key.
+4.  Populates the Neo4j database by creating all nodes (`Paper`, `Author`,
+    `Concept`) and all relationships (`AUTHORED_BY`, `CITES`, `DISCUSSES`).
+
+The result is a fully populated, queryable knowledge graph that serves as a
+primary tool for the Scholar-Agent.
+"""
+
 # src/data_processing/populate_graph.py
 
 import json

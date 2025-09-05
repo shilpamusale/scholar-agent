@@ -1,3 +1,35 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+ingestion.py: Core data processing pipeline for the RAG vector store.
+
+This module is responsible for the end-to-end process of taking raw PDF documents
+and converting them into a persistent, searchable ChromaDB vector store. This
+vector store serves as the primary knowledge base for the Retrieval-Augmented
+Generation (RAG) capabilities of the Scholar-Agent.
+
+The pipeline consists of three main stages:
+1.  Loading: Scans a directory for PDF files and loads their text content.
+2.  Splitting: Chunks the document text into manageable, overlapping segments.
+3.  Embedding & Storing: Converts text chunks into vector embeddings using a
+    SentenceTransformer model and persists them to a ChromaDB database.
+
+This script is designed to be called by an entrypoint (e.g., scripts/ingest.py)
+or as part of a larger automated workflow.
+"""
+
 # src/data_processing/ingestion.py
 
 import glob

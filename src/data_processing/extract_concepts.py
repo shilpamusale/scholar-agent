@@ -1,3 +1,38 @@
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+extract_concepts.py: Extracts key technical concepts from research papers.
+
+This module is responsible for the Natural Language Processing (NLP) task of
+extracting keyphrases and concepts from the full text of downloaded PDFs.
+It adds a critical layer of semantic understanding to the knowledge graph.
+
+The pipeline follows a sophisticated, multi-stage process:
+1.  PDFs are loaded and their full text is extracted.
+2.  The `pke` library, specifically the powerful `MultipartiteRank` algorithm,
+    is used to perform unsupervised keyphrase extraction. This graph-based
+    model is effective at identifying relevant, multi-word candidate phrases.
+3.  A crucial layer of domain-specific, heuristic-based post-processing is
+    applied to filter the algorithm's output. This removes common academic
+    boilerplate, in-text citations, and overly generic terms, ensuring a
+    high-quality list of concepts.
+
+The output is `data/processed/paper_concepts.json`, a dictionary mapping each
+paper's arXiv ID to a list of its most important extracted concepts.
+"""
+
 # src/data_processing/extract_concepts.py
 
 import json
