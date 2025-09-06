@@ -17,6 +17,7 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 The system is split into two core components: an offline Data Pipeline that builds the knowledge base, and an online Agentic System that uses it to answer questions.
 
 ```mermaid
+```mermaid
 graph TD
     subgraph "Offline: Data Pipeline"
         direction LR
@@ -38,20 +39,18 @@ graph TD
         I --> J[Final Answer];
     end
 
-    %% Styles
-    style A fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000   %% Sources
-    style E fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000   %% User Query
+    %% Class Definitions for consistent colors
+    classDef source fill:#FFD580,stroke:#666,stroke-width:1.5px,color:#222;
+    classDef process fill:#A8E6A3,stroke:#666,stroke-width:1.5px,color:#222;
+    classDef storage fill:#9EC9FF,stroke:#666,stroke-width:1.5px,color:#222;
+    classDef output fill:#D7B3FF,stroke:#666,stroke-width:1.5px,color:#222;
 
-    style B fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Processing
-    style F fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Manager Agent
-    style G fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Knowledge Graph Tool
-    style H fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% RAG Tool
-    style I fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Generator Agent
+    %% Assign Classes
+    class A,E source;
+    class B,F,G,H,I process;
+    class C,D storage;
+    class J output;
 
-    style C fill:#99ccff,stroke:#333,stroke-width:2px,color:#000   %% Neo4j
-    style D fill:#99ccff,stroke:#333,stroke-width:2px,color:#000   %% ChromaDB
-
-    style J fill:#d9b3ff,stroke:#333,stroke-width:2px,color:#000   %% Final Answer
 ```
 ### **Getting Started**
 
