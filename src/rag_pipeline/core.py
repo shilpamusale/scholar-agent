@@ -123,6 +123,7 @@ def create_rag_chain(
         model=settings.LLM_MODEL_NAME,
         temperature=0,
         max_output_tokens=settings.MAX_OUTPUT_TOKENS,
+        google_api_key=settings.get_google_api_key(),
     )
     logger.info(f"LLM initialized with model: {settings.LLM_MODEL_NAME}")
 
