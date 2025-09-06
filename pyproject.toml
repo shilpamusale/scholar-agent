@@ -99,6 +99,3 @@ ruff = ["--extend-ignore=E402"]
 # Auto-fix issues in notebooks where possible
 ruff = ["--fix"]
 isort = []
-
-[tool.pytest.ini_options]
-dotenv_files = [".env"]
