@@ -15,16 +15,20 @@
 """
 __init__.py: Turns the 'tools' directory into a Python package.
 
-This file also acts as the central factory for creating and providing tools
-to the AI agent. By placing the `get_tools` function here, we can easily
-import it from other parts of the application using `from src.agent.tools import get_tools`.
+This file also acts as the central
+factory for creating and providing tools
+to the AI agent. By placing the
+`get_tools` function here, we can easily
+import it from other parts of the
+application using `from src.agent.tools
+import get_tools`.
 """
 
 from langchain_core.tools import Tool
 
+from src.agent.schemas import ToolInputSchema
 from src.rag_pipeline.core import create_rag_chain
 from src.utils.logging_config import setup_logging
-from src.agent.schemas import ToolInputSchema
 
 # Import the new tool class from its module within this package
 from .knowledge_graph_tool import KnowledgeGraphTool
@@ -45,8 +49,10 @@ def get_tools() -> list:
         name="research_paper_search",
         func=rag_chain.invoke,
         description=(
-            "Searches and retrieves information from the text of research papers. "
-            "Use this for questions about the content, abstract, or findings of a specific paper."
+            "Searches and retrieves information "
+            "from the text of research papers. "
+            "Use this for questions about the content, "
+            "abstract, or findings of a specific paper."
         ),
         args_schema=ToolInputSchema,
     )
@@ -58,8 +64,10 @@ def get_tools() -> list:
         name="knowledge_graph_query",
         func=knowledge_graph_tool_instance.execute,
         description=(
-            "Queries the knowledge graph to find relationships between papers, authors, and concepts. "
-            "Use this for questions about citations, collaborations, influential authors, or connections between topics."
+            "Queries the knowledge graph to find "
+            "relationships between papers, authors, and concepts. "
+            "Use this for questions about citations, collaborations, "
+            "influential authors, or connections between topics."
         ),
         args_schema=ToolInputSchema,
     )

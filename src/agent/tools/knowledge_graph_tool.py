@@ -20,54 +20,47 @@ capabilities and the structured knowledge stored in the Neo4j database.
 
 import os
 
-from langchain_core.prompts import(
-    PromptTemplate
-)
-from langchain_google_genai import(
-    ChatGoogleGenerativeAI
-)
+from langchain_core.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
 from neo4j import GraphDatabase
 
 import configs.settings as settings
-from configs.text_to_cypher import(
-    CYPHER_GENERATION_PROMPT,
-    GRAPH_SCHEMA
-)
-from src.utils.logging_config import(
-    setup_logging
-)
+from configs.text_to_cypher import CYPHER_GENERATION_PROMPT, GRAPH_SCHEMA
+from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__,"knowledge_graph_tool")
+logger = setup_logging(__name__, "knowledge_graph_tool")
+
 
 class KnowledgeGraphTool:
     """
     A tool for an agent to query a Neo4j knowledge graph.
     """
+
     def __init__(self):
         """Initializes connections to the LLM and the Neo4j database."""
         logger.info("Initializing KnowledgeGraphTool...")
 
         self.llm = ChatGoogleGenerativeAI(
-            model= settings.LLM_MODEL_NAME_ADVANCED,
-            temperature = 0, 
+            model=settings.LLM_MODEL_NAME_ADVANCED,
+            temperature=0,
         )
 
         self.prompt = PromptTemplate(
-            input_variables = ["schema", "question"],
-            template = CYPHER_GENERATION_PROMPT,
+            input_variables=["schema", "question"],
+            template=CYPHER_GENERATION_PROMPT,
         )
 
         try:
             URI = os.getenv("NEO4J_URI", "")
             AUTH = (os.getenv("NEO4J_USERNAME", ""), os.getenv("NEO4J_PASSWORD", ""))
-            self.driver = GraphDatabase.driver(URI, auth = AUTH)
+            self.driver = GraphDatabase.driver(URI, auth=AUTH)
 
             logger.info("Neo4j connection established.")
 
         except Exception as e:
             logger.error(f" Failed to connect to knowledge graph: {e}")
             self.driver = None
-    
+
     def execute(self, question: str) -> str:
         """
         The main entry point for the tool. An agent calls this method.
@@ -93,15 +86,15 @@ class KnowledgeGraphTool:
         except Exception as e:
             logger.error(f"An error occurred during Cypher query execution: {e}")
             return f"Error executing database query: {e}"
-        
-    def _generate_cypher(self, question:str) -> str:
+
+    def _generate_cypher(self, question: str) -> str:
         """
         A helper method to create cypher query from the question.
         """
         chain = self.prompt | self.llm
-        response = chain.invoke({"schema": GRAPH_SCHEMA, "question":question})
+        response = chain.invoke({"schema": GRAPH_SCHEMA, "question": question})
         return response.content.strip()
-    
+
     def format_result(self, result: str) -> str:
         """
         Formats the list of dictionary results from Neo4j into a string.
@@ -111,10 +104,7 @@ class KnowledgeGraphTool:
         formatted_lines = []
         for record in result:
             line_parts = []
-            for key, value in  record.items():
+            for key, value in record.items():
                 line_parts.append(f"{key}: {value}")
             formatted_lines.append(", ".join(line_parts))
         return "\n".join(formatted_lines)
-    
-
-

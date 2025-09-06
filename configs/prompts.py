@@ -20,7 +20,7 @@ tuning, and management of the agent's behavior and personality.
 """
 
 # This prompt empowers the manager to choose the best tool.
-# The LLM will automatically see the names 
+# The LLM will automatically see the names
 # and descriptions of the tools
 # provided in `tools.py` and use them to make its decision.
 MANAGER_PROMPT = (
@@ -48,4 +48,3 @@ GENERATOR_PROMPT = (
     "Do not add any information or "
     "opinions that are not explicitly stated in the context."
 )
-

@@ -43,7 +43,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, StateGraph
 
 import configs.settings as settings
-from configs.prompts import MANAGER_PROMPT, GENERATOR_PROMPT
+from configs.prompts import GENERATOR_PROMPT, MANAGER_PROMPT
 from src.agent.tools import get_tools
 from src.utils.logging_config import setup_logging
 
@@ -95,19 +95,37 @@ def tool_node(state: AgentState) -> dict:
         # The 'args' are now a dictionary with a 'question' key,
         query = tool_args.get("question")
         if query is None:
-             # Fallback for safety, though schema should prevent this
+            # Fallback for safety, though schema should prevent this
             query = next(iter(tool_args.values()), None)
 
         if query:
             response = tool_to_call.invoke(query)
             logger.info("Tool execution finished.")
-            return {"messages": [ToolMessage(content=str(response), tool_call_id=tool_call["id"])]}
+            return {
+                "messages": [
+                    ToolMessage(content=str(response), tool_call_id=tool_call["id"])
+                ]
+            }
         else:
             logger.warning("Tool called with no valid query argument.")
-            return {"messages": [ToolMessage(content="Error: Tool called with no query.", tool_call_id=tool_call["id"])]}
+            return {
+                "messages": [
+                    ToolMessage(
+                        content="Error: Tool called with no query.",
+                        tool_call_id=tool_call["id"],
+                    )
+                ]
+            }
     else:
         logger.warning(f"Tool '{tool_name}' not found.")
-        return {"messages": [ToolMessage(content=f"Error: Tool '{tool_name}' not found.", tool_call_id=tool_call["id"])]}
+        return {
+            "messages": [
+                ToolMessage(
+                    content=f"Error: Tool '{tool_name}' not found.",
+                    tool_call_id=tool_call["id"],
+                )
+            ]
+        }
 
 
 def generator_node(state: AgentState) -> dict:
@@ -149,4 +167,3 @@ workflow.add_edge("generator", END)
 
 agent_graph = workflow.compile()
 logger.info("Agent graph compiled successfully.")
-

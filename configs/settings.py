@@ -35,6 +35,7 @@ managed via environment variables and loaded from a .env file.
 # configs/settings.py
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,7 +46,9 @@ PROJECT_ROOT = Path(__file__).parent.parent
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY not found in environment variables. Please create a .env file.")
+    raise ValueError(
+        "GOOGLE_API_KEY not found in environment variables. Please create a .env file."
+    )
 
 
 # --- Data Paths ---
@@ -79,14 +82,18 @@ RERANKER_TOP_N = 3  # Reduced from 5
 # --- Cross-Encoder Model for Re-ranking ---
 CROSS_ENCODER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
 
-# The standard, cost-effective model for general tasks like routing and simple generation.
+# The standard, cost-effective model for
+# general tasks like routing and simple generation.
 # This model is optimized for speed and efficiency.
 LLM_MODEL_NAME = "gemini-1.5-flash-latest"
 
-# The advanced, powerful model for complex, high-stakes reasoning tasks.
-# This is used for the critical Text-to-Cypher generation where accuracy is paramount.
+# The advanced, powerful model for complex,
+# high-stakes reasoning tasks.
+# This is used for the critical Text-to-Cypher
+# generation where accuracy is paramount.
 LLM_MODEL_NAME_ADVANCED = "gemini-1.5-pro-latest"
-# The maximum number of tokens to generate in a single response from the LLMs.
+# The maximum number of tokens to generate
+# in a single response from the LLMs.
 MAX_OUTPUT_TOKENS = 2048
 
 # --- External APIs ---

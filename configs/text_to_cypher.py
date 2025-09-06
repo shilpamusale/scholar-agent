@@ -46,10 +46,9 @@ You must follow these rules:
     CREATE, SET, DELETE, REMOVE). You are in a read-only environment.
 3.  If a question cannot be answered using the provided schema, you must return
     the single word: "Error".
-4.  Your output must be ONLY the Cypher query. Do not include any explanation,
+4.  Output must be ONLY the Cypher query. Do not include any explanation,
     preamble, or markdown formatting like ```cypher.
-5.  For counting relationships, you MUST use the modern `COUNT {{ ... }}` syntax or `COUNT(variable)`.
-    You MUST NOT use the deprecated `size()` function.
+
 
 Here is the schema of the graph:
 {schema}
@@ -77,4 +76,3 @@ LIMIT 10
 Now, generate the Cypher query for the following question:
 Question: {question}
 """
-

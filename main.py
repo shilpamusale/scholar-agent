@@ -25,7 +25,9 @@ Usage:
 """
 
 import argparse
+
 from langchain_core.messages import HumanMessage
+
 from src.agent.graph import agent_graph
 from src.utils.logging_config import setup_logging
 
@@ -37,9 +39,7 @@ def main():
     The main execution function for the Scholar-Agent.
     """
     parser = argparse.ArgumentParser(description="Scholar-Agent CLI")
-    parser.add_argument(
-        "query", type=str, help="The research query to ask the agent."
-    )
+    parser.add_argument("query", type=str, help="The research query to ask the agent.")
     args = parser.parse_args()
 
     logger.info(f"Starting agent with query: {args.query}")
@@ -51,16 +51,16 @@ def main():
 
         # Stream the execution of the agent graph
         for chunk in agent_graph.stream(inputs):
-            # The stream yields a dictionary 
+            # The stream yields a dictionary
             # with the node name as the key
-            # and the node's output as the value. 
+            # and the node's output as the value.
             # We print each step for visibility.
             print("---")
             print(chunk)
             print("---")
             final_state = chunk
 
-        # The final answer is in the 'generator' 
+        # The final answer is in the 'generator'
         # node's output from the last chunk
         if final_state and "generator" in final_state:
             final_answer = final_state["generator"]["messages"][-1].content

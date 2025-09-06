@@ -120,10 +120,10 @@ def create_rag_chain(
     logger.info("Prompt template created.")
 
     llm = ChatGoogleGenerativeAI(
-    model=settings.LLM_MODEL_NAME,
-    temperature=0,
-    max_output_tokens=settings.MAX_OUTPUT_TOKENS,
-    google_api_key=settings.GOOGLE_API_KEY
+        model=settings.LLM_MODEL_NAME,
+        temperature=0,
+        max_output_tokens=settings.MAX_OUTPUT_TOKENS,
+        google_api_key=settings.GOOGLE_API_KEY,
     )
     logger.info(f"LLM initialized with model: {settings.LLM_MODEL_NAME}")
 
