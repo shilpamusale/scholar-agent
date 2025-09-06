@@ -17,7 +17,6 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 The system is split into two core components: an offline Data Pipeline that builds the knowledge base, and an online Agentic System that uses it to answer questions.
 
 ```mermaid
-```mermaid
 graph TD
     subgraph "Offline: Data Pipeline"
         direction LR
@@ -39,18 +38,17 @@ graph TD
         I --> J[Final Answer];
     end
 
-    %% Class Definitions for consistent colors
+    %% Define reusable classes
     classDef source fill:#FFD580,stroke:#666,stroke-width:1.5px,color:#222;
     classDef process fill:#A8E6A3,stroke:#666,stroke-width:1.5px,color:#222;
     classDef storage fill:#9EC9FF,stroke:#666,stroke-width:1.5px,color:#222;
     classDef output fill:#D7B3FF,stroke:#666,stroke-width:1.5px,color:#222;
 
-    %% Assign Classes
+    %% Assign classes
     class A,E source;
     class B,F,G,H,I process;
     class C,D storage;
     class J output;
-
 ```
 ### **Getting Started**
 
