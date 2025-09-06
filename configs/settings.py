@@ -2,7 +2,6 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
@@ -31,25 +30,34 @@ This file includes:
 Secrets and credentials (e.g., API keys) are NOT stored here. They should be
 managed via environment variables and loaded from a .env file.
 """
-
 # configs/settings.py
+
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+
+def get_google_api_key() -> str:
+    """
+    Safely loads and returns the Google API key from environment variables.
+
+    This function is called "lazily" only when the API key is actually needed,
+    which makes the application more testable. It will first attempt to load
+    a .env file if one exists.
+    """
+    load_dotenv()  # Load the .env file if it exists in the current directory
+    google_api_key = os.getenv("GOOGLE_API_KEY")
+    if not google_api_key:
+        raise ValueError(
+            "GOOGLE_API_KEY not found. Please set it in your .env file or environment."
+        )
+    return google_api_key
+
+
 # --- Project Root ---
 # This computes the absolute path to the project's root directory
 PROJECT_ROOT = Path(__file__).parent.parent
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-if not GOOGLE_API_KEY:
-    raise ValueError(
-        "GOOGLE_API_KEY not found in environment variables. Please create a .env file."
-    )
-
 
 # --- Data Paths ---
 DATA_PATH = PROJECT_ROOT / "data"

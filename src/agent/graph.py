@@ -55,13 +55,13 @@ manager_llm = ChatGoogleGenerativeAI(
     model=settings.LLM_MODEL_NAME,
     temperature=0,
     max_output_tokens=settings.MAX_OUTPUT_TOKENS,
-    google_api_key=settings.GOOGLE_API_KEY,
+    google_api_key=settings.get_google_api_key(),
 ).bind_tools(tools)
 generator_llm = ChatGoogleGenerativeAI(
     model=settings.LLM_MODEL_NAME,
     temperature=0,
     max_output_tokens=settings.MAX_OUTPUT_TOKENS,
-    google_api_key=settings.GOOGLE_API_KEY,
+    google_api_key=settings.get_google_api_key(),
 )
 
 
