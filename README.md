@@ -38,8 +38,20 @@ graph TD
         I --> J[Final Answer];
     end
 
-    style C fill:#f9f,stroke:#333,stroke-width:2px
-    style D fill:#ccf,stroke:#333,stroke-width:2px
+    %% Styles
+    style A fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000   %% Sources
+    style E fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000   %% User Query
+
+    style B fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Processing
+    style F fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Manager Agent
+    style G fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Knowledge Graph Tool
+    style H fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% RAG Tool
+    style I fill:#a3e4a3,stroke:#333,stroke-width:2px,color:#000   %% Generator Agent
+
+    style C fill:#99ccff,stroke:#333,stroke-width:2px,color:#000   %% Neo4j
+    style D fill:#99ccff,stroke:#333,stroke-width:2px,color:#000   %% ChromaDB
+
+    style J fill:#d9b3ff,stroke:#333,stroke-width:2px,color:#000   %% Final Answer
 ```
 ### **Getting Started**
 
