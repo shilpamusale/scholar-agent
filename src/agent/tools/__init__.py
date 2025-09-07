@@ -33,7 +33,8 @@ from src.utils.logging_config import setup_logging
 # Import the new tool class from its module within this package
 from .knowledge_graph_tool import KnowledgeGraphTool
 
-logger = setup_logging(__name__, "agent_tools")
+# logger = setup_logging(__name__, "agent_tools")
+logger = setup_logging(__name__)
 
 
 def get_tools() -> list:

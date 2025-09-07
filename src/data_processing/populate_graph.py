@@ -44,7 +44,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "populate_graph")
+# logger = setup_logging(__name__, "populate_graph")
+logger = setup_logging(__name__)
 
 
 class GraphPopulator:
@@ -60,9 +61,7 @@ class GraphPopulator:
         ON MATCH SET p.title = $title, p.arxiv_id = $arxiv_id, p.year = $year
         """
         # Using self.driver.execute_query for simplicity and consistency
-        self.driver.execute_query(
-            query, s2_id=s2_id, title=title, arxiv_id=arxiv_id, year=year
-        )
+        self.driver.execute_query(query, s2_id=s2_id, title=title, arxiv_id=arxiv_id, year=year)
 
     def create_author(self, name: str) -> None:
         self.driver.execute_query("MERGE (a:Author {name: $name})", name=name)
@@ -73,9 +72,7 @@ class GraphPopulator:
         MATCH (p:Paper {s2_id: $paper_s2_id})
         MERGE (a)-[:AUTHORED_BY]->(p)
         """
-        self.driver.execute_query(
-            query, author_name=author_name, paper_s2_id=paper_s2_id
-        )
+        self.driver.execute_query(query, author_name=author_name, paper_s2_id=paper_s2_id)
 
     def link_paper_to_citation(self, source_s2_id: str, cited_s2_id: str) -> None:
         query = """
@@ -83,9 +80,7 @@ class GraphPopulator:
         MATCH (p2:Paper {s2_id: $cited_s2_id})
         MERGE (p1)-[:CITES]->(p2)
         """
-        self.driver.execute_query(
-            query, source_s2_id=source_s2_id, cited_s2_id=cited_s2_id
-        )
+        self.driver.execute_query(query, source_s2_id=source_s2_id, cited_s2_id=cited_s2_id)
 
     def create_concept(self, concept_name: str) -> None:
         self.driver.execute_query("MERGE (c:Concept {name: $name})", name=concept_name)
@@ -96,9 +91,7 @@ class GraphPopulator:
         MATCH (c:Concept {name: $concept_name})
         MERGE (p)-[:DISCUSSES]->(c)
         """
-        self.driver.execute_query(
-            query, paper_s2_id=paper_s2_id, concept_name=concept_name
-        )
+        self.driver.execute_query(query, paper_s2_id=paper_s2_id, concept_name=concept_name)
 
 
 def load_json_data(file_path: str) -> Any:
@@ -117,12 +110,8 @@ def run_population_pipeline() -> None:
     URI = os.getenv("NEO4J_URI", "")
     AUTH = (os.getenv("NEO4J_USERNAME", ""), os.getenv("NEO4J_PASSWORD", ""))
 
-    s2_papers_map = (
-        load_json_data(settings.PROCESSED_DATA_PATH / "s2_metadata.json") or {}
-    )
-    concepts_map = (
-        load_json_data(settings.PROCESSED_DATA_PATH / "paper_concepts.json") or {}
-    )
+    s2_papers_map = load_json_data(settings.PROCESSED_DATA_PATH / "s2_metadata.json") or {}
+    concepts_map = load_json_data(settings.PROCESSED_DATA_PATH / "paper_concepts.json") or {}
     len_s2 = len(s2_papers_map)
     len_cn = len(concepts_map)
     logger.info(f"Loaded S2 metadata for {len_s2} papers.")
@@ -138,17 +127,13 @@ def run_population_pipeline() -> None:
                 if ref and ref.get("paperId"):
                     all_cited_s2_ids.add(ref["paperId"])
 
-        logger.info(
-            f"Creating {len(all_cited_s2_ids)} placeholder nodes for cited papers..."
-        )
+        logger.info(f"Creating {len(all_cited_s2_ids)} placeholder nodes for cited papers...")
         for s2_id in tqdm(all_cited_s2_ids, desc="Creating Cited Placeholders"):
             populator.create_paper(s2_id, "Title Unknown", "N/A", 0)
 
         logger.info("Populating full graph data...")
         # CORRECTED: Iterate over the dictionary's items (key, value)
-        for arxiv_id, paper_data in tqdm(
-            s2_papers_map.items(), desc="Populating Full Graph"
-        ):
+        for arxiv_id, paper_data in tqdm(s2_papers_map.items(), desc="Populating Full Graph"):
             s2_id = paper_data.get("paperId")
 
             populator.create_paper(

@@ -44,7 +44,8 @@ from langchain_community.vectorstores import Chroma
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "ingestion_pipeline")
+# logger = setup_logging(__name__, "ingestion_pipeline")
+logger = setup_logging(__name__)
 
 
 def load_documents(path: str) -> list[dict]:
@@ -70,9 +71,7 @@ def load_documents(path: str) -> list[dict]:
 def split_documents(documents: list[dict]) -> list[dict]:
     """Splits the loaded documents into smaller chunks."""
     logger.info("Splitting documents into chunks...")
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP
-    )
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
     chunks = text_splitter.split_documents(documents)
     logger.info(f"Created {len(chunks)} chunks from documents.")
     return chunks
@@ -81,9 +80,7 @@ def split_documents(documents: list[dict]) -> list[dict]:
 def create_and_persist_vector_store(chunks: list[dict]):
     """Creates and persists a ChromaDB vector store from document chunks."""
     logger.info("Creating vector store...")
-    embedding_model = SentenceTransformerEmbeddings(
-        model_name=settings.EMBEDDING_MODEL_NAME
-    )
+    embedding_model = SentenceTransformerEmbeddings(model_name=settings.EMBEDDING_MODEL_NAME)
 
     # Ensure we clear out the old directory to avoid stale data
     if os.path.exists(settings.VECTOR_STORE_PATH):
@@ -96,9 +93,7 @@ def create_and_persist_vector_store(chunks: list[dict]):
             embedding=embedding_model,
             persist_directory=str(settings.VECTOR_STORE_PATH),
         )
-        logger.info(
-            f"Vector store created and persisted at {settings.VECTOR_STORE_PATH}"
-        )
+        logger.info(f"Vector store created and persisted at {settings.VECTOR_STORE_PATH}")
     except Exception as e:
         logger.error(f"Failed to create vector store. Error: {e}")
 

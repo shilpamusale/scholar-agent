@@ -36,7 +36,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "downloader")
+# logger = setup_logging(__name__, "downloader")
+logger = setup_logging(__name__)
 
 
 def clean_arxiv_id(raw_id: str) -> str:
@@ -52,9 +53,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
     logger.info(f"Starting download for query: '{query}'")
     os.makedirs(output_dir, exist_ok=True)
 
-    search = arxiv.Search(
-        query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance
-    )
+    search = arxiv.Search(query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance)
     results = list(search.results())
 
     if not results:

@@ -47,7 +47,8 @@ from configs.prompts import GENERATOR_PROMPT, MANAGER_PROMPT
 from src.agent.tools import get_tools
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "agent_graph")
+# logger = setup_logging(__name__, "agent_graph")
+logger = setup_logging(__name__)
 
 # --- LLM and Tool Initialization (Done Once) ---
 tools = get_tools()
@@ -101,11 +102,7 @@ def tool_node(state: AgentState) -> dict:
         if query:
             response = tool_to_call.invoke(query)
             logger.info("Tool execution finished.")
-            return {
-                "messages": [
-                    ToolMessage(content=str(response), tool_call_id=tool_call["id"])
-                ]
-            }
+            return {"messages": [ToolMessage(content=str(response), tool_call_id=tool_call["id"])]}
         else:
             logger.warning("Tool called with no valid query argument.")
             return {

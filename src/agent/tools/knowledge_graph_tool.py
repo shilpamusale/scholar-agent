@@ -18,6 +18,7 @@ This tool bridges the gap between the agent's natural language processing
 capabilities and the structured knowledge stored in the Neo4j database.
 """
 
+import json
 import os
 
 from langchain_core.prompts import PromptTemplate
@@ -28,7 +29,8 @@ import configs.settings as settings
 from configs.text_to_cypher import CYPHER_GENERATION_PROMPT, GRAPH_SCHEMA
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "knowledge_graph_tool")
+# logger = setup_logging(__name__, "knowledge_graph_tool")
+logger = setup_logging(__name__)
 
 
 class KnowledgeGraphTool:
@@ -64,17 +66,17 @@ class KnowledgeGraphTool:
     def execute(self, question: str) -> str:
         """
         The main entry point for the tool. An agent calls this method.
-        It takes a natural language question and returns a formatted string result.
+        It takes a natural language question and returns a JSON string result.
         """
         if not self.driver:
-            return "Error: Database connection is not available."
+            return '{"error": "Database connection is not available."}'
 
         logger.info(f" Executing tool with question: '{question}'")
         cypher_query = self._generate_cypher(question)
 
         if "Error" in cypher_query:
             logger.warning("LLM could not generate Cypher query.")
-            return "Error: The question could not be translated into a database query."
+            return '{"error": "The question could not be translated into a database query."}'  # noqa: E501
 
         logger.info(f" Generated Cypher query: {cypher_query}")
 
@@ -82,10 +84,18 @@ class KnowledgeGraphTool:
             with self.driver.session() as session:
                 result = session.run(cypher_query).data()
                 logger.info(f"Query returned {len(result)} records.")
-                return self.format_result(result)
+
+                # --- CHANGE: Construct a dictionary and return it as a JSON string ---
+                output_data = {"cypher_query": cypher_query, "database_result": result}
+                return json.dumps(output_data, indent=2)
+
         except Exception as e:
             logger.error(f"An error occurred during Cypher query execution: {e}")
-            return f"Error executing database query: {e}"
+            error_data = {
+                "cypher_query": cypher_query,
+                "error": f"Error executing database query: {e}",
+            }
+            return json.dumps(error_data, indent=2)
 
     def _generate_cypher(self, question: str) -> str:
         """
@@ -94,17 +104,3 @@ class KnowledgeGraphTool:
         chain = self.prompt | self.llm
         response = chain.invoke({"schema": GRAPH_SCHEMA, "question": question})
         return response.content.strip()
-
-    def format_result(self, result: str) -> str:
-        """
-        Formats the list of dictionary results from Neo4j into a string.
-        """
-        if not result:
-            return "No results found."
-        formatted_lines = []
-        for record in result:
-            line_parts = []
-            for key, value in record.items():
-                line_parts.append(f"{key}: {value}")
-            formatted_lines.append(", ".join(line_parts))
-        return "\n".join(formatted_lines)

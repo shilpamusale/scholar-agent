@@ -52,6 +52,7 @@ dependencies = [
     "ruff",
     "nbqa",
     "isort",
+    "rich",
 
     # Testing & Code Quality
     "pytest",
@@ -78,7 +79,7 @@ where = ["src"]
 
 # --- LINTER & FORMATTER CONFIGURATION ---
 [tool.ruff]
-line-length = 88
+line-length = 120
 
 [tool.ruff.lint]
 select = [

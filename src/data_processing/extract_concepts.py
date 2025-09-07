@@ -47,7 +47,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "concept_extractor")
+# logger = setup_logging(__name__, "concept_extractor")
+logger = setup_logging(__name__)
 
 POST_FILTER_STOPLIST = {
     "figure",
@@ -86,13 +87,9 @@ class ConceptExtractor:
             spacy.cli.download(self.spacy_model)
         self.nlp = spacy.load(self.spacy_model)
 
-    def extract_concepts(
-        self, document_text: str, top_n: int = 15
-    ) -> list[tuple[str, float]]:
+    def extract_concepts(self, document_text: str, top_n: int = 15) -> list[tuple[str, float]]:
         extractor = pke.unsupervised.MultipartiteRank()
-        extractor.load_document(
-            input=document_text, language="en", spacy_model=self.nlp
-        )
+        extractor.load_document(input=document_text, language="en", spacy_model=self.nlp)
         pos = {"NOUN", "PROPN", "ADJ"}
         extractor.candidate_selection(pos=pos)
         extractor.candidate_weighting(alpha=1.1, threshold=0.74, method="average")
@@ -148,9 +145,7 @@ def run_concept_extraction_pipeline():
             logger.error(f"Failed to process {pdf_path.name}. Error: {e}")
 
     output_path = settings.PROCESSED_DATA_PATH / "paper_concepts.json"
-    logger.info(
-        f"Saving extracted concepts for {len(all_concepts)} papers to {output_path}..."
-    )
+    logger.info(f"Saving extracted concepts for {len(all_concepts)} papers to {output_path}...")
     with open(output_path, "w") as f:
         json.dump(all_concepts, f, indent=2)
     logger.info("Concept extraction pipeline finished successfully.")
