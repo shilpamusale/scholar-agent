@@ -13,7 +13,9 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 
 ## Demo
 
-![ScholarAgent Demo MP4](assets/scholar_agent_demo.mp4)  
+<!-- ![ScholarAgent Demo MP4](assets/scholar_agent_demo.mp4)   -->
+<!-- <video src="assets/scholar_agent_demo.mp4" controls width="500"></video> -->
+[![Demo Screenshot](assets/scholar_agent_demo_image.jpg)](assets/scholar_agent_demo.mp4)
 *(A demonstration of the agent answering a complex query using the Knowledge Graph tool.)*
 
 ---
