@@ -49,9 +49,7 @@ def get_google_api_key() -> str:
     load_dotenv()  # Load the .env file if it exists in the current directory
     google_api_key = os.getenv("GOOGLE_API_KEY")
     if not google_api_key:
-        raise ValueError(
-            "GOOGLE_API_KEY not found. Please set it in your .env file or environment."
-        )
+        raise ValueError("GOOGLE_API_KEY not found. Please set it in your .env file or environment.")
     return google_api_key
 
 
@@ -63,9 +61,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DATA_PATH = PROJECT_ROOT / "data"
 RAW_DATA_PATH = DATA_PATH / "raw"
 PROCESSED_DATA_PATH = DATA_PATH / "processed"
-VECTOR_STORE_PATH = str(
-    PROCESSED_DATA_PATH / "chroma_db"
-)  # Convert to string for ChromaDB
+VECTOR_STORE_PATH = str(PROCESSED_DATA_PATH / "chroma_db")  # Convert to string for ChromaDB
 LOGS_PATH = PROJECT_ROOT / "logs"
 
 
@@ -88,7 +84,7 @@ RETRIEVER_TOP_K = 15  # Reduced from 20
 RERANKER_TOP_N = 3  # Reduced from 5
 
 # --- Cross-Encoder Model for Re-ranking ---
-CROSS_ENCODER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
+CROSS_ENCODER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 # The standard, cost-effective model for
 # general tasks like routing and simple generation.

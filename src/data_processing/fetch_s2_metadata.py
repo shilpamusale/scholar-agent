@@ -75,8 +75,7 @@ def fetch_paper_metadata(arxiv_id: str, api_key: str) -> dict[str, Any] | None:
             if e.response.status_code == 429:  # Rate limit error
                 wait_time = base_backoff * (2**attempt)
                 logger.warning(
-                    f"Rate limit hit for arXiv:{clean_id} on attempt "
-                    f"{attempt + 1}. Waiting for {wait_time} seconds."
+                    f"Rate limit hit for arXiv:{clean_id} on attempt {attempt + 1}. Waiting for {wait_time} seconds."
                 )
                 time.sleep(wait_time)
                 continue  # Retry the loop
@@ -90,9 +89,7 @@ def fetch_paper_metadata(arxiv_id: str, api_key: str) -> dict[str, Any] | None:
             logger.error(f"Request failed for arXiv:{clean_id}: {e}")
             return None
 
-    logger.error(
-        f"Failed to fetch metadata for arXiv:{clean_id} after {max_retries} attempts."
-    )
+    logger.error(f"Failed to fetch metadata for arXiv:{clean_id} after {max_retries} attempts.")
     return None
 
 
@@ -132,10 +129,7 @@ def fetch_all_metadata() -> None:
     with open(output_path, "w") as f:
         json.dump(enriched_papers_map, f, indent=2)
 
-    logger.info(
-        f"Successfully saved S2 metadata for {len(enriched_papers_map)} "
-        f"papers to {output_path}"
-    )
+    logger.info(f"Successfully saved S2 metadata for {len(enriched_papers_map)} papers to {output_path}")
 
 
 if __name__ == "__main__":

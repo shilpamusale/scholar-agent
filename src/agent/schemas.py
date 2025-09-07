@@ -25,6 +25,4 @@ class ToolInputSchema(BaseModel):
     Ensures that the LLM provides the full user question.
     """
 
-    question: str = Field(
-        description="The user's complete, original question that needs to be answered."
-    )
+    question: str = Field(description="The user's complete, original question that needs to be answered.")

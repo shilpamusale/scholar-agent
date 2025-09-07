@@ -1,43 +1,69 @@
-# src/utils/logging_config.py
+# Copyright 2025 Shilpa Musale
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+logging_config.py: Centralized logging configuration for the application.
+"""
 
 import logging
 import os
-from datetime import datetime
 
-import configs.settings as settings  # Import settings
+from rich.logging import RichHandler
+
+from configs import settings
 
 
-def setup_logging(logger_name: str, log_file_prefix: str):
+def setup_logging(name: str) -> logging.Logger:
     """
-    Sets up a logger that writes to a timestamped file in the project's logs/ directory.
+    Sets up a logger with a rich handler for beautiful, configurable output.
+
+    Args:
+        name (str): The name of the logger (usually __name__).
+
+    Returns:
+        logging.Logger: A configured logger instance.
     """
-    # Ensure the logs directory exists using the absolute path from settings
-    os.makedirs(settings.LOGS_PATH, exist_ok=True)
+    # --- CHANGE: Always get the level from the environment. Default to INFO if not set. ---
+    log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
 
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
-
+    logger = logging.getLogger(name)
     if logger.hasHandlers():
+        # Logger is already configured, don't add duplicate handlers
         return logger
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_filename = f"{log_file_prefix}_{timestamp}.log"
+    logger.propagate = False  # Prevent messages from being passed to the root logger
+    logger.setLevel(log_level)
 
-    # Use the absolute path for the log file
-    file_handler = logging.FileHandler(os.path.join(settings.LOGS_PATH, log_filename))
-    file_handler.setLevel(logging.INFO)
+    # Ensure the logs directory exists
+    settings.LOGS_PATH.mkdir(exist_ok=True)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    # --- CHANGE: Pass the log_level directly to the RichHandler ---
+    # A rich handler for readable console output
+    console_handler = RichHandler(level=log_level, markup=True, show_path=False, rich_tracebacks=True)
 
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+    # A file handler to save logs to a file
+    file_handler = logging.FileHandler(settings.LOGS_PATH / "scholar_agent.log")
+    file_handler.setLevel(logging.DEBUG)  # Always log debug level to file
 
-    logger.addHandler(file_handler)
+    # Create formatters and add them to the handlers
+    console_formatter = logging.Formatter("%(message)s")
+    file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    console_handler.setFormatter(console_formatter)
+    file_handler.setFormatter(file_formatter)
+
+    # Add handlers to the logger
     logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger

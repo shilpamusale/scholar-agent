@@ -3,6 +3,7 @@ langchain
 langchain-google-genai
 langgraph
 sentence-transformers
+tokenizers==0.15.2
 ragas==0.1.7
 flashrank
 
@@ -28,6 +29,7 @@ nbqa
 isort
 arxiv
 spacy
+rich
 #Python keyphrase extraction
 pke @ git+https://github.com/boudinfl/pke.git
 pytest-dotenv

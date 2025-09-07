@@ -56,9 +56,7 @@ def fetch_and_save_metadata(query: str, num_papers: int, output_path: str) -> No
     logger.info(f"Starting metadata fetch for query: '{query}'")
 
     try:
-        search = arxiv.Search(
-            query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance
-        )
+        search = arxiv.Search(query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance)
         results = list(search.results())
     except Exception as e:
         logger.error(f" An error occurred while fetchhng results from arXiv: {e}")
@@ -89,10 +87,7 @@ def fetch_and_save_metadata(query: str, num_papers: int, output_path: str) -> No
     try:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(papers_metadata, f, indent=4, ensure_ascii=False)
-        logger.info(
-            f"Successfully saved metadata for {len(papers_metadata)}"
-            f" papers to {output_path}"
-        )
+        logger.info(f"Successfully saved metadata for {len(papers_metadata)} papers to {output_path}")
     except OSError as e:
         logger.error(f"Failed to write metadata to file {output_path}: {e}")
 
@@ -100,9 +95,7 @@ def fetch_and_save_metadata(query: str, num_papers: int, output_path: str) -> No
 if __name__ == "__main__":
     print("Fetching arxiv metadata.")
 
-    METADATA_OUTPUT_PATH = os.path.join(
-        settings.PROCESSED_DATA_PATH, "arxiv_metadata.json"
-    )
+    METADATA_OUTPUT_PATH = os.path.join(settings.PROCESSED_DATA_PATH, "arxiv_metadata.json")
 
     fetch_and_save_metadata(
         query=settings.SEARCH_QUERY,

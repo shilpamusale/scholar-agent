@@ -52,9 +52,7 @@ def download_papers(query: str, num_papers: int, output_dir: str):
     logger.info(f"Starting download for query: '{query}'")
     os.makedirs(output_dir, exist_ok=True)
 
-    search = arxiv.Search(
-        query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance
-    )
+    search = arxiv.Search(query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance)
     results = list(search.results())
 
     if not results:
