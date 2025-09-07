@@ -1,6 +1,6 @@
 # ScholarAgent: An Advanced Multi-Agent Research Assistant
 
-[![CI/CD Status](https://github.com/shilpamusale/scholar-agent/actions/workflows/main.yml/badge.svg)](https://github.com/shilpamusale/scholar-agent/actions)
+[![CI/CD Status](https://github.com/shilpamusale/scholar-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/shilpamusale/scholar-agent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/shilpamusale/scholar-agent/graph/badge.svg)](https://codecov.io/gh/shilpamusale/scholar-agent)
 [![Linting: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -13,7 +13,7 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 
 ## Demo
 
-![ScholarAgent Demo GIF](assets/scholar_agent_demo.gif)
+![ScholarAgent Demo MP4](assets/scholar_agent_demo.mp4)  
 *(A demonstration of the agent answering a complex query using the Knowledge Graph tool.)*
 
 ---
@@ -65,6 +65,7 @@ graph TD
     class B,F,G,H,I process;
     class C,D storage;
     class J output;
+
 ```
 
 ---
