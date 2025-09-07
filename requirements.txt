@@ -1,5 +1,6 @@
 #Core LangChain and RAG components
 langchain
+langchain-core
 langchain-google-genai
 langgraph
 sentence-transformers
