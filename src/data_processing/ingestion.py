@@ -44,7 +44,8 @@ from langchain_community.vectorstores import Chroma
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "ingestion_pipeline")
+# logger = setup_logging(__name__, "ingestion_pipeline")
+logger = setup_logging(__name__)
 
 
 def load_documents(path: str) -> list[dict]:

@@ -44,7 +44,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "populate_graph")
+# logger = setup_logging(__name__, "populate_graph")
+logger = setup_logging(__name__)
 
 
 class GraphPopulator:

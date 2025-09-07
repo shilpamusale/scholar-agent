@@ -40,7 +40,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "metadata_fetcher")
+# logger = setup_logging(__name__, "metadata_fetcher")
+logger = setup_logging(__name__)
 
 
 def fetch_and_save_metadata(query: str, num_papers: int, output_path: str) -> None:

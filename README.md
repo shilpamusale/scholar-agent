@@ -1,105 +1,98 @@
-# **ScholarAgent: An Advanced Multi-Agent Research Assistant**
+# ScholarAgent 🔬
 
-ScholarAgent is a sophisticated multi-agent system designed to perform deep, relational reasoning over a corpus of scientific papers. It moves beyond standard RAG by building and querying a dynamic Knowledge Graph, allowing it to answer complex questions that require synthesizing information across multiple documents and their relationships.
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 
-### **Key Features**
+ScholarAgent is an advanced, multi-agent research assistant designed to reason over a corpus of scientific papers. It leverages a sophisticated RAG pipeline, a knowledge graph, and a multi-agent architecture to answer complex questions and uncover novel insights from technical documents.
 
-* **Automated Knowledge Graph Construction:** A Makefile-driven pipeline that automatically fetches papers from arXiv, enriches them with data from Semantic Scholar, extracts key concepts, and builds a comprehensive Neo4j Knowledge Graph.
-* **Intelligent Multi-Agent System:** Built with LangGraph, the system uses a Manager agent to intelligently route complex queries to specialized tools.
-* **Hybrid Toolset for Deep Reasoning:**
-  * **Advanced RAG Tool:** For content-based questions, using a retrieve-then-rerank pipeline for high-quality context.
-  * **Knowledge Graph Tool:** For relational questions, using a powerful gemini-1.5-pro model to translate natural language into precise Cypher database queries.
-* **Tiered LLM Strategy:** Utilizes the efficient gemini-1.5-flash for general tasks and the powerful gemini-1.5-pro for high-stakes reasoning, balancing performance and cost.
-* **Fully Tested and Type-Hinted:** A robust test suite built with pytest and a modern, type-hinted codebase.
+---
 
-### **Architecture Overview**
+## 🚀 Demo
 
-The system is split into two core components: an offline Data Pipeline that builds the knowledge base, and an online Agentic System that uses it to answer questions.
+![ScholarAgent Demo GIF](assets/scholar_agent_demo.gif)
+*(A demonstration of the agent answering a complex query using the Knowledge Graph tool.)*
 
-```mermaid
-graph TD
-    subgraph "Offline: Data Pipeline"
-        direction LR
-        A[External Sources <br> arXiv & Semantic Scholar] --> B{Data Processing Scripts};
-        B --> C[Neo4j Knowledge Graph];
-        B --> D[ChromaDB Vector Store];
-    end
+---
 
-    subgraph "Online: Agentic System"
-        direction LR
-        E[User Query] --> F{Manager Agent};
-        F -- routes to --> G[Knowledge Graph Tool];
-        F -- routes to --> H[Advanced RAG Tool];
-        G -- queries --> C;
-        H -- queries --> D;
-        I[Generator Agent]
-        G --> I;
-        H --> I;
-        I --> J[Final Answer];
-    end
+## ✨ Key Features
 
-    %% Define reusable classes
-    classDef source fill:#FFD580,stroke:#666,stroke-width:1.5px,color:#222;
-    classDef process fill:#A8E6A3,stroke:#666,stroke-width:1.5px,color:#222;
-    classDef storage fill:#9EC9FF,stroke:#666,stroke-width:1.5px,color:#222;
-    classDef output fill:#D7B3FF,stroke:#666,stroke-width:1.5px,color:#222;
+* **Advanced RAG Pipeline:** Implements a two-stage retrieval process that combines a fast, high-recall vector search (ChromaDB) with a powerful, high-precision cross-encoder model for re-ranking. This ensures the most relevant context is provided to the language model.
 
-    %% Assign classes
-    class A,E source;
-    class B,F,G,H,I process;
-    class C,D storage;
-    class J output;
+* **Multi-Agent Architecture:** Utilizes a collaborative team of AI agents built with LangGraph. The system features a **Manager** for task decomposition, a specialized **Search Agent** for information retrieval, and a **Writer Agent** for synthesizing coherent answers.
+
+* **Knowledge Graph Integration:** Automatically builds and queries a Neo4j knowledge graph from research papers. This allows the agent to answer complex questions about relationships between papers, authors, and concepts that are impossible with vector search alone.
+
+* **Polished & Transparent CLI:** An interactive command-line interface built with `rich` that visualizes the agent's entire thought process, including tool selections, generated Cypher queries, database results in tables, and the final synthesized answer.
+
+---
+
+## 🏗️ System Architecture
+
+![System Architecture Diagram](assets/architecture.png)
+*(Diagram showing the flow from user query to the Manager agent, which delegates tasks to the RAG and Knowledge Graph tools before synthesizing a final answer.)*
+
+---
+
+## 🛠️ Tech Stack
+
+* **LLMs & Agents:** LangChain, LangGraph, Google Gemini
+* **Data & ML:** PyTorch, `sentence-transformers`
+* **Databases:** Neo4j (Graph), ChromaDB (Vector)
+* **Core:** Python 3.12+
+* **Tooling:** `rich` (for CLI), `pre-commit`, `ruff`, Poetry
+
+---
+
+## ⚙️ Setup and Installation
+
+Follow these steps to get ScholarAgent running on your local machine.
+
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/your-username/scholar-agent.git](https://github.com/your-username/scholar-agent.git)
+cd scholar-agent
 ```
-### **Getting Started**
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+### 2. Configure Environment Variables
+Copy the example environment file and fill in your API keys and database credentials.
+```bash
+cp .env.example .env
+```
+You will need to add your credentials for:
+* `GOOGLE_API_KEY`
+* `NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`
 
-**Prerequisites:**
+### 3. Install Dependencies
+This project uses Poetry for dependency management.
+```bash
+poetry install
+```
 
-* Python 3.10+
-* Poetry (for dependency management)
-* A running Neo4j instance (e.g., via Docker)
-* A Google AI API Key
+### 4. Ingest Data
+Before running the agent, you must populate the knowledge bases. Place your research papers (PDFs) in the `data/raw` directory and run the ingestion script.
+```bash
+python scripts/ingest.py
+```
+This script will process the PDFs, build the ChromaDB vector store, and populate the Neo4j knowledge graph.
 
-**Installation:**
+---
 
-1. **Clone the repository:**
-   ```python
-   git clone \[https://github.com/\](https://github.com/)\<your\_github\_username\>/scholar-agent.git
-   cd scholar-agent
-   ```
+## 💻 Usage
 
-2. Create a .env file:
-   Copy the example environment file and add your credentials.
-   ```python
-   cp .env.example .env
-   \# Now, edit the .env file with your API keys and database URI
-   ```
+Run the agent from the command line by providing a query in quotes.
 
-3. **Install dependencies:**
-   ```python
-   poetry install
-   ```
+### Example 1: RAG Query
+```bash
+python main.py "Summarize the key findings of the paper 'Attention Is All You Need'"
+```
 
-4. Build the Knowledge Graph:
-   This command will run the entire data pipeline. This may take some time.
-   ```python
-   make all
-   ```
-
-### **Usage**
-
-Once the knowledge graph is built, you can ask the agent questions from the command line.
-
-**Example 1: Relational Query (Knowledge Graph Tool)**
-```python
+### Example 2: Knowledge Graph Query
+```bash
 python main.py "Who are the most cited authors on the topic of 'sparse autoencoders'?"
 ```
-**Example 2: Content Query (RAG Tool)**
-```python
-python main.py "Summarize the abstract of the paper 'Attention Is All You Need'"
-```
-**Example 3: Complex Hybrid Query**
-```python
-python main.py "How are researchers at Anthropic using dictionary learning for interpretability, particularly in relation to sparse autoencoders?"
-```
+
+---
+
+## 📄 License
+
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.

@@ -45,7 +45,8 @@ from tqdm import tqdm
 import configs.settings as settings
 from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__, "fetch_s2_metadata")
+# logger = setup_logging(__name__, "fetch_s2_metadata")
+logger = setup_logging(__name__)
 
 
 def clean_arxiv_id(arxiv_id: str) -> str:
