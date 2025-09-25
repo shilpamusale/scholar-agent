@@ -130,7 +130,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/](https://github.com/)<your_github_username>/scholar-agent.git
+    git clone [[https://github.com/](https://github.com/)shilpamusale/scholar-agent.git](https://github.com/shilpamusale/scholar-agent.git)
     cd scholar-agent
     ```
 
