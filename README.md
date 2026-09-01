@@ -171,31 +171,6 @@ python main.py "Summarize the abstract of the paper The Interpretable Dictionary
 python main.py "How are researchers at Anthropic using dictionary learning for interpretability, particularly in relation to sparse autoencoders?"
 ```
 
----
-
-## Future Work: The Autonomous Research Agent
-
-The current version of ScholarAgent is a robust information retrieval and reasoning system. The next major phase of this project is to evolve it into a fully autonomous research and experimentation agent.
-
-**Vision**: An AI agent that not only reads new research papers but can also design, run, and analyze experiments to test or extend the ideas presented.
-
-### Core Components
-* **Research Planning & Hypothesis Generation**: An advanced reasoning layer where the agent can map new papers against existing work, identify open problems or weaknesses, and propose novel, testable experiments.
-* **Automated Experiment Execution**: The ability for the agent to autonomously:
-    * Spin up sandboxed code environments (e.g., via local containers or cloud APIs like Modal).
-    * Write and execute code to implement baseline models and run comparative benchmarks.
-* **Self-Critique & Iterative Refinement**: An analysis module for the agent to interpret its own experimental results using statistical methods, compare them to the paper's original claims, and iteratively refine its hypotheses based on the evidence.
-
-### Advanced Capabilities
-* **Multi-Agent Collaboration**: Evolving the system into a team of specialized agents: a *Literature Reviewer*, an *Experimenter* to run the code, and a *Critic* to analyze the results and suggest new directions.
-* **Active Tool Learning**: Empowering the agent to dynamically identify and learn how to use external tools and libraries (e.g., specific packages from Hugging Face, PyTorch, or statsmodels) as needed to complete its experiments.
-
-### Technical Approach
-* **Orchestration & Configuration**: The agent's complex workflows will be managed using a robust framework like `Hydra` for configuration management.
-* **Environments**: Experimental environments will be containerized using `Docker` to ensure reproducibility.
-* **Interpretability & Safety**: Mechanistic interpretability will be explored using tools like `TransformerLens`, while bias mitigation will be implemented with Parameter-Efficient Fine-Tuning techniques like `LoRA`.
-
-This next phase aims to bridge the gap between understanding research and actively contributing to it.
 
 ---
 ## License
