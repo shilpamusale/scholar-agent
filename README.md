@@ -18,20 +18,18 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 
 ### Fallback Routing
 
-When a retrieval route fails to produce grounding, the agent re-routes rather
-than synthesising an answer from an error. Below, the knowledge-graph route
-fails (Neo4j unreachable), the agent falls back to vector retrieval, and still
-answers.
+When a retrieval route fails to produce grounding, the agent re-routes rather than
+synthesising an answer from an error. Below, the knowledge-graph route fails
+(Neo4j unreachable), the agent falls back to vector retrieval, and still answers.
 
 ![Fallback routing demo](assets/fallback_demo.gif)
 
 Failure detection is classification, not exception handling: the most common
-failure is a route that succeeds mechanically and returns nothing useful — a
-Cypher query matching no nodes, a retriever surfacing no relevant passages.
-Neither raises.
+failure is a route that succeeds mechanically and returns nothing useful — a Cypher
+query matching no nodes, a retriever surfacing no relevant passages. Neither raises.
 
-On retry, the failed route is **unbound from the manager LLM**, so the model
-cannot re-select it; the invalid action is never offered. A hop budget and a
+On retry, the failed route is **unbound from the manager LLM**, so the model cannot
+re-select it; the invalid action is never offered. A hop budget and a
 route-exhaustion check bound the cycle. The routing policy lives in
 `src/agent/tool_result.py` as pure functions, unit tested without a model
 (`tests/test_tool_result.py`).
@@ -44,9 +42,10 @@ route-exhaustion check bound the cycle. The routing policy lives in
 * **Intelligent Multi-Agent System:** Built with LangGraph, the system uses a Manager agent to intelligently route complex queries to specialized tools.
 * **Hybrid Toolset for Deep Reasoning:**
     * **Advanced RAG Tool:** For content-based questions, using a retrieve-then-rerank pipeline for high-quality context.
-    * **Knowledge Graph Tool:** For relational questions, using a powerful `gemini-1.5-pro` model to translate natural language into precise Cypher database queries.
-* **Tiered LLM Strategy:** Utilizes the efficient `gemini-1.5-flash` for general tasks and the powerful `gemini-1.5-pro` for high-stakes reasoning, balancing performance and cost.
-* **Fully Tested and Type-Hinted:** A robust test suite built with `pytest` and a modern, type-hinted codebase enforced by `pre-commit` hooks.
+    * **Knowledge Graph Tool:** For relational questions, using the stronger of the two configured Gemini models to translate natural language into schema-constrained, read-only Cypher.
+* **Tiered LLM Strategy:** A fast Gemini model handles routing and synthesis; a stronger one handles text-to-Cypher, where a malformed query costs an entire route rather than a slightly worse sentence. Both are pinned by version in `configs/settings.py` so evaluation runs stay comparable.
+* **Resilient Routing:** A failed route is unbound from the manager on retry, so the agent attempts a different tool instead of synthesising an answer from an error. Bounded by a hop budget and a route-exhaustion check.
+* **Tested Routing Policy:** Tool-result classification and the routing decision are pure functions covered by unit tests that run without a model, network, or database. Type-hinted throughout and enforced by `pre-commit` hooks.
 
 ---
 
@@ -70,9 +69,10 @@ graph TD
         F -- routes to --> H[Advanced RAG Tool];
         G -- queries --> C;
         H -- queries --> D;
-        I[Generator Agent]
-        G --> I;
-        H --> I;
+        G --> K{Route produced<br>grounding?};
+        H --> K;
+        K -- no: retry with the<br>failed route unbound --> F;
+        K -- yes, or every<br>route exhausted --> I[Generator Agent];
         I --> J[Final Answer];
     end
 
@@ -82,7 +82,7 @@ graph TD
     classDef output fill:#D7B3FF,stroke:#666,stroke-width:1.5px,color:#222;
 
     class A,E source;
-    class B,F,G,H,I process;
+    class B,F,G,H,I,K process;
     class C,D storage;
     class J output;
 
@@ -193,3 +193,6 @@ python main.py "How are researchers at Anthropic using dictionary learning for i
 
 ---
 
+## License
+
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
