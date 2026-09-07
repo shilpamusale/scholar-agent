@@ -31,6 +31,7 @@ import os
 import re
 
 import arxiv
+import requests
 from tqdm import tqdm
 
 import configs.settings as settings
@@ -53,8 +54,14 @@ def download_papers(query: str, num_papers: int, output_dir: str):
     logger.info(f"Starting download for query: '{query}'")
     os.makedirs(output_dir, exist_ok=True)
 
+    # arxiv >= 4.0 removed Search.results(); a Client now drives paging.
+    client = arxiv.Client(
+        page_size=settings.ARXIV_PAGE_SIZE,
+        delay_seconds=settings.ARXIV_DELAY_SECONDS,
+        num_retries=settings.ARXIV_NUM_RETRIES,
+    )
     search = arxiv.Search(query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance)
-    results = list(search.results())
+    results = list(client.results(search))
 
     if not results:
         logger.warning("No papers found for the given query.")
@@ -67,7 +74,23 @@ def download_papers(query: str, num_papers: int, output_dir: str):
             arxiv_id = clean_arxiv_id(paper.entry_id)
             filename = f"{arxiv_id}.pdf"
 
-            paper.download_pdf(dirpath=output_dir, filename=filename)
+            destination = os.path.join(output_dir, filename)
+
+            if os.path.exists(destination):
+                logger.info(f"'{filename}' already present, skipping download.")
+                continue
+
+            # arxiv >= 4.0 removed Result.download_pdf(); the PDF link is
+            # exposed as `pdf_url` and fetched directly.
+            if not paper.pdf_url:
+                logger.warning(f"No PDF link available for '{paper.title}'. Skipping.")
+                continue
+
+            response = requests.get(paper.pdf_url, timeout=60)
+            response.raise_for_status()
+            with open(destination, "wb") as handle:
+                handle.write(response.content)
+
             logger.info(f"Successfully downloaded '{filename}'")
         except Exception as e:
             logger.error(f"Failed to download paper: {paper.title}. Error: {e}")

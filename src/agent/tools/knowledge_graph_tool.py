@@ -103,4 +103,6 @@ class KnowledgeGraphTool:
         """
         chain = self.prompt | self.llm
         response = chain.invoke({"schema": GRAPH_SCHEMA, "question": question})
-        return response.content.strip()
+        # `.content` is a list of typed content blocks on newer models rather
+        # than a plain string. `.text` flattens both shapes to str.
+        return response.text.strip()

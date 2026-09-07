@@ -18,12 +18,13 @@ main.py: The primary entry point for the Scholar-Agent application.
 
 import argparse
 import json
+import logging
 import os
 import warnings
 from typing import Any
 
 from langchain_core._api.deprecation import LangChainDeprecationWarning
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -36,11 +37,17 @@ os.environ["LOG_LEVEL"] = "WARNING"
 # Suppress Deprecation Warnings for a clean demo.
 warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
 
+# The google-genai client logs an advisory about automatic function calling on
+# every request. It is informational, not a problem with this application, and
+# it is emitted through logging rather than warnings, so a warnings filter does
+# not reach it. Logger name confirmed in google/genai/_extra_utils.py.
+logging.getLogger("google_genai").setLevel(logging.ERROR)
+
 
 # --- LOCAL IMPORTS (PLACED AFTER CONFIGURATION) ---
 # noqa: E402 tells the linter to ignore the "import not at top of file" error.
 # This is intentional and necessary for the logging configuration to work correctly.
-from src.agent.graph import agent_graph  # noqa: E402
+from src.agent.graph import agent_graph, initial_state  # noqa: E402
 from src.utils.logging_config import setup_logging  # noqa: E402
 
 # Initialize logger now that the environment variable is set.
@@ -69,7 +76,7 @@ def main():
         )
     )
 
-    inputs = {"messages": [HumanMessage(content=args.query)]}
+    inputs = initial_state(args.query)
     final_state: dict[str, Any] = {}
 
     try:
@@ -94,81 +101,95 @@ def main():
                         last_message = state_update["messages"][-1]
                         if isinstance(last_message, ToolMessage):
                             try:
-                                tool_output_dict = json.loads(last_message.content)
+                                envelope = json.loads(last_message.text)
+                            except json.JSONDecodeError:
+                                envelope = {
+                                    "tool": "unknown",
+                                    "status": "error",
+                                    "detail": "Tool output was not a valid envelope.",
+                                    "payload": {"raw": last_message.text},
+                                }
 
-                                if "database_result" in tool_output_dict:
-                                    tool_name = "Knowledge Graph Tool"
-                                    cypher_query = tool_output_dict.get("cypher_query", "No query generated.")
-                                    db_result = tool_output_dict.get("database_result", [])
+                            tool_name = envelope.get("tool", "unknown tool")
+                            tool_status = envelope.get("status", "unknown")
+                            payload = envelope.get("payload") or {}
+                            border = "green" if tool_status == "ok" else "yellow"
+                            header = f"[bold yellow] Tool Output: {tool_name} ({tool_status})[/bold yellow]"
 
-                                    query_panel = Panel(
+                            if "cypher_query" in payload:
+                                console.print(
+                                    Panel(
                                         Syntax(
-                                            cypher_query,
+                                            payload["cypher_query"],
                                             "cypher",
                                             theme="monokai",
                                             line_numbers=True,
                                         ),
-                                        title="[bold]Generated Cypher Query[/bold]",
-                                        border_style="green",
+                                        title=header,
+                                        border_style=border,
                                     )
-
-                                    table = Table(
-                                        title="Database Results",
-                                        expand=True,
-                                        border_style="green",
-                                    )
-                                    if db_result:
-                                        headers = db_result[0].keys()
-                                        for header in headers:
-                                            table.add_column(header, style="cyan", no_wrap=False)
-                                        for row in db_result:
-                                            table.add_row(*[str(item) for item in row.values()])
-
-                                    console.print(
-                                        Panel(
-                                            query_panel,
-                                            title=f"[bold yellow] Tool Output: {tool_name}[/bold yellow]",
-                                            border_style="dim",
-                                        )
-                                    )
+                                )
+                                records = payload.get("database_result") or []
+                                if records:
+                                    table = Table(title="Database Results", expand=True, border_style=border)
+                                    for header_name in records[0].keys():
+                                        table.add_column(header_name, style="cyan", no_wrap=False)
+                                    for row in records:
+                                        table.add_row(*[str(item) for item in row.values()])
                                     console.print(Panel(table, border_style="dim"))
 
-                                elif "answer" in tool_output_dict:
-                                    tool_name = "Advanced RAG Tool"
-                                    console.print(
-                                        Panel(
-                                            Markdown(tool_output_dict["answer"]),
-                                            title=f"[bold yellow] Tool Output: {tool_name}[/bold yellow]",
-                                            border_style="dim",
-                                        )
-                                    )
-
-                                else:
-                                    output_str = f"```json\n{last_message.content}\n```"
-                                    console.print(
-                                        Panel(
-                                            Markdown(output_str),
-                                            title="[bold yellow] Tool Output: Generic Tool[/bold yellow]",
-                                            border_style="dim",
-                                        )
-                                    )
-
-                            except json.JSONDecodeError:
-                                output_str = f"```\n{last_message.content}\n```"
+                            elif "answer" in payload:
                                 console.print(
                                     Panel(
-                                        Markdown(output_str),
-                                        title="[bold yellow] Tool Output: Raw Text[/bold yellow]",
-                                        border_style="dim",
+                                        Markdown(payload["answer"]),
+                                        title=header,
+                                        border_style=border,
+                                    )
+                                )
+                                sources = payload.get("sources") or []
+                                if sources:
+                                    source_lines = "\n".join(
+                                        f"- `{src.get('source', 'unknown')}` p.{src.get('page', '?')}"
+                                        for src in sources
+                                    )
+                                    console.print(
+                                        Panel(
+                                            Markdown(source_lines),
+                                            title="[bold]Retrieved Sources[/bold]",
+                                            border_style="dim",
+                                        )
+                                    )
+
+                            else:
+                                console.print(
+                                    Panel(
+                                        Markdown(f"```json\n{json.dumps(payload, indent=2)}\n```"),
+                                        title=header,
+                                        border_style=border,
                                     )
                                 )
 
-                            status.update("Tool executed. Synthesizing final answer...")
+                            if tool_status == "ok":
+                                status.update("Route produced grounding. Synthesizing final answer...")
+                            else:
+                                console.print(
+                                    Panel(
+                                        Markdown(
+                                            f"**{tool_name}** returned status `{tool_status}`.\n\n"
+                                            f"{envelope.get('detail', '')}"
+                                        ),
+                                        title="[bold red] Route Failed - Falling Back[/bold red]",
+                                        border_style="red",
+                                    )
+                                )
+                                status.update("Route failed. Trying an alternate route...")
 
                     final_state = state_update
 
         if "messages" in final_state and final_state["messages"]:
-            final_answer = final_state["messages"][-1].content
+            # `.content` may be a list of typed content blocks; `.text`
+            # flattens it to the string Markdown expects.
+            final_answer = final_state["messages"][-1].text
             console.print(
                 Panel(
                     Markdown(final_answer),

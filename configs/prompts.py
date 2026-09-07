@@ -48,3 +48,31 @@ GENERATOR_PROMPT = (
     "Do not add any information or "
     "opinions that are not explicitly stated in the context."
 )
+
+
+# Appended to MANAGER_PROMPT when a previous route failed to produce grounding.
+# The failed tool is also unbound from the manager LLM in `manager_node`, so
+# this directive explains the situation rather than being the only thing
+# preventing a repeat call.
+ROUTE_RETRY_DIRECTIVE = (
+    "A previous attempt to answer this question has already failed.\n"
+    "Route attempted: `{failed_tool}`\n"
+    "Reason it did not produce an answer: {detail}\n\n"
+    "That tool is no longer available to you. Re-read the user's original "
+    "question and call one of the tools you still have, rephrasing the "
+    "question if a different framing suits the remaining tool better. "
+    "Do not attempt to answer from your own knowledge."
+)
+
+# Used by the generator when every available route has been exhausted without
+# grounding. Without a separate prompt here, the generator receives an error
+# envelope as its 'context' and tries to synthesise an answer from it.
+GENERATOR_NO_CONTEXT_PROMPT = (
+    "You are an expert research assistant. Every available retrieval route has "
+    "been tried for this question and none returned usable grounding from the "
+    "corpus. Tell the user plainly that the answer is not available in the "
+    "indexed papers, and state in one sentence which routes were attempted and "
+    "why each failed, using only the tool output provided. "
+    "Do not answer the question from your own knowledge, and do not speculate "
+    "about what the papers might contain."
+)
