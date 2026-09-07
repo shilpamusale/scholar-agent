@@ -16,6 +16,26 @@ ScholarAgent is a sophisticated multi-agent system designed to perform deep, rel
 ![ScholarAgent Demo](assets/scholar_agent_demo.gif)
 *(A demonstration of the agent answering a complex query using the Knowledge Graph tool.)*
 
+### Fallback Routing
+
+When a retrieval route fails to produce grounding, the agent re-routes rather
+than synthesising an answer from an error. Below, the knowledge-graph route
+fails (Neo4j unreachable), the agent falls back to vector retrieval, and still
+answers.
+
+![Fallback routing demo](assets/fallback_demo.gif)
+
+Failure detection is classification, not exception handling: the most common
+failure is a route that succeeds mechanically and returns nothing useful — a
+Cypher query matching no nodes, a retriever surfacing no relevant passages.
+Neither raises.
+
+On retry, the failed route is **unbound from the manager LLM**, so the model
+cannot re-select it; the invalid action is never offered. A hop budget and a
+route-exhaustion check bound the cycle. The routing policy lives in
+`src/agent/tool_result.py` as pure functions, unit tested without a model
+(`tests/test_tool_result.py`).
+
 ---
 
 ## Key Features
