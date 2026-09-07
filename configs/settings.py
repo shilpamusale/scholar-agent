@@ -73,6 +73,16 @@ CHUNK_OVERLAP = 200
 SEARCH_QUERY = "Anthropic dictionary learning interpretability sparse autoencoder"
 MAX_RESULTS = 20
 
+# --- arXiv API Client ---
+# arXiv's terms of use ask for no more than one request every three seconds and
+# will answer 429 when that is exceeded. On shared egress IPs (CI runners, cloud
+# dev environments) the limit can be reached by other traffic, so the client is
+# configured to back off further and retry more times than the library default.
+# page_size is matched to MAX_RESULTS so a single page satisfies the query.
+ARXIV_PAGE_SIZE = MAX_RESULTS
+ARXIV_DELAY_SECONDS = 5.0
+ARXIV_NUM_RETRIES = 5
+
 # --- Embedding Model ---
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
@@ -89,16 +99,24 @@ CROSS_ENCODER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 # The standard, cost-effective model for
 # general tasks like routing and simple generation.
 # This model is optimized for speed and efficiency.
-LLM_MODEL_NAME = "gemini-1.5-flash-latest"
+
+LLM_MODEL_NAME = "gemini-3.8-flash"
 
 # The advanced, powerful model for complex,
 # high-stakes reasoning tasks.
 # This is used for the critical Text-to-Cypher
 # generation where accuracy is paramount.
-LLM_MODEL_NAME_ADVANCED = "gemini-1.5-pro-latest"
+LLM_MODEL_NAME_ADVANCED = "gemini-3.1-pro-preview"
 # The maximum number of tokens to generate
 # in a single response from the LLMs.
 MAX_OUTPUT_TOKENS = 2048
+
+# --- Agentic Routing ---
+# The maximum number of tool executions permitted for a single user query.
+# One initial route plus one fallback. Raising this above the number of
+# registered tools has no effect: `decide_after_tool` also stops once every
+# route has been tried.
+MAX_TOOL_HOPS = 2
 
 # --- External APIs ---
 S2_API_URL = "https://api.semanticscholar.org/graph/v1"

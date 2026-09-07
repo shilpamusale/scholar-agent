@@ -57,8 +57,15 @@ def fetch_and_save_metadata(query: str, num_papers: int, output_path: str) -> No
     logger.info(f"Starting metadata fetch for query: '{query}'")
 
     try:
+        # arxiv >= 4.0 removed Search.results(); paging is now driven by a
+        # Client, which also applies the API's requested rate limiting.
+        client = arxiv.Client(
+            page_size=settings.ARXIV_PAGE_SIZE,
+            delay_seconds=settings.ARXIV_DELAY_SECONDS,
+            num_retries=settings.ARXIV_NUM_RETRIES,
+        )
         search = arxiv.Search(query=query, max_results=num_papers, sort_by=arxiv.SortCriterion.Relevance)
-        results = list(search.results())
+        results = list(client.results(search))
     except Exception as e:
         logger.error(f" An error occurred while fetchhng results from arXiv: {e}")
         return
